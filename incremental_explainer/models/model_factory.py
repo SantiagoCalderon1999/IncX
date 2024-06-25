@@ -8,7 +8,7 @@ from incremental_explainer.models.faster_rcnn import FasterRcnn
 class ModelFactory:
     
     def get_model(self, model: ModelEnum) -> od_common.GeneralObjectDetectionModelWrapper:
-        if model == ModelEnum.RTDETR:
+        if model == ModelEnum.RT_DETR:
             return RtDetr()
         elif model == ModelEnum.YOLO:
             return Yolo()
