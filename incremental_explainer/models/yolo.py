@@ -31,13 +31,23 @@ class Yolo(od_common.GeneralObjectDetectionModelWrapper):
         
         detections = [] 
         for raw_detection in raw_detections:
+            scores = raw_detection[0].boxes.conf
+            boxes = raw_detection[0].boxes.xyxy
+            class_ids = raw_detection[0].boxes.cls
+            
+            indices = scores > 0.5
+            
+            scores = scores[indices]
+            boxes = boxes[indices]
+            class_ids = class_ids[indices]
+            
             detections.append(
                 od_common.DetectionRecord(
-                    bounding_boxes=raw_detection[0].boxes.xyxy,
-                    class_scores=od_common.expand_class_scores(raw_detection[0].boxes.conf,
-                                                                  raw_detection[0].boxes.cls,
-                                                                  self._number_of_classes),
-                    objectness_scores=torch.tensor([1.0]*raw_detection[0].boxes.conf.shape[0]),
+                    bounding_boxes=boxes,
+                    class_scores=od_common.expand_class_scores(scores,
+                                                                class_ids,
+                                                                self._number_of_classes),
+                    objectness_scores=torch.tensor([1.0]*len(scores)),
                 )
             )
         
