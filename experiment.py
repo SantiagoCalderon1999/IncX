@@ -106,10 +106,6 @@ if __name__ == "__main__":
                     "bounding_box": bounding_box,
                     "class_index": int(class_index),
                     "class_score": max(results[0].class_scores[object_index].detach().numpy())
-                },
-                "maps": {
-                    "saliency": saliency_map,
-                    "sufficient_exp": suf_exp,
                 }
             }
             results_array.append(results_dict)
