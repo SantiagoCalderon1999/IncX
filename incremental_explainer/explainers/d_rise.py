@@ -13,6 +13,7 @@ class DRise(BaseExplainer):
     def create_saliency_map(self, image_location, model: od_common.GeneralObjectDetectionModelWrapper):
 
         number = 0
+        results_drise = []
         while (len(self._results[0].bounding_boxes) != number):
             results_drise = dr.get_drise_saliency_map(nummasks=self._nummasks, imagelocation=image_location, model= model, savename="anything", numclasses=95, max_figures=2, maskres=(16,16))
             number = len(results_drise)
