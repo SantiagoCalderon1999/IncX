@@ -53,4 +53,4 @@ def compute_explanation_proportion(model: od_common.GeneralObjectDetectionModelW
                     plt.show()
                 return div, suf_expl
 
-        return -1
+        return 1, image
