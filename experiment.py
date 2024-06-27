@@ -15,6 +15,7 @@ from incremental_explainer.metrics.insertion import compute_insertion
 from incremental_explainer.metrics.epg import compute_energy_based_pointing_game
 from incremental_explainer.metrics.exp_proportion import compute_explanation_proportion
 import time
+import portalocker
 
 if __name__ == "__main__":
 
@@ -119,7 +120,11 @@ if __name__ == "__main__":
         curr_pickle[job_key] = results_array
 
         with open(pickle_file_name, 'wb') as file:
-            pickle.dump(curr_pickle, file)
+            portalocker.lock(file, portalocker.LOCK_EX)
+            try:
+                pickle.dump(curr_pickle, file)
+            finally:
+                portalocker.unlock(file)
             
         print(f"Finished image: {image_location}, model: {model_name}, explainer: {explainer_name}")
         print('---------------------------------')
