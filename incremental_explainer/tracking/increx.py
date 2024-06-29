@@ -31,7 +31,7 @@ class IncRex:
             saliency_map = self._explainer.create_saliency_map(prediction, image)[self._object_index]
             self._explanation_tracker = SoTracker(saliency_map, prediction, self._object_index)
             bounding_box = prediction.bounding_boxes[self._object_index]
-            sufficient_explanation, self._exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_map, image, np.argmax(prediction.class_scores[self._object_index]), bounding_box, divisions=1000)
+            sufficient_explanation, self._exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_map, image, np.argmax(prediction.class_scores[self._object_index]), bounding_box)
         else:
             saliency_map, bounding_box = self._explanation_tracker.compute_tracked_explanation(image, prediction)
             sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_threshold)
