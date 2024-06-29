@@ -4,6 +4,9 @@ from incremental_explainer.tracking.so_tracker import SoTracker
 from incremental_explainer.utils.explanations import compute_initial_sufficient_explanation, compute_subsequent_sufficient_explanation
 from torchvision import transforms
 import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from tqdm import tqdm
 
 class IncRex:
     
@@ -17,7 +20,7 @@ class IncRex:
         self._object_index = object_index
         self._exp_threshold = 0
     
-    def explain(self, image):
+    def explain_frame(self, image):
         
         transform = transforms.Compose([
             transforms.ToTensor()
@@ -40,3 +43,21 @@ class IncRex:
         
         self._prev_saliency_map = saliency_map
         return saliency_map, bounding_box, sufficient_explanation
+    
+    def explain_frame_sequence(self, image_set):
+        alpha = 0.5
+        light_blue = (31, 112, 255)
+        frames = []
+        for image in tqdm(image_set, position=0, leave=True):
+            saliency_maps, bounding_box, suff_explanation = self.explain_frame(image)
+            viridis_frame = plt.cm.viridis(saliency_maps)
+            viridis_frame_rgb = viridis_frame[:, :, :3]
+            frame = cv2.addWeighted(
+                    image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0
+                )
+            cv2.rectangle(frame, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_blue, thickness=3)
+            cv2.rectangle(suff_explanation, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_blue, thickness=3)
+            frame = np.hstack((frame, suff_explanation))
+            frames.append(frame)
+        
+        return frames
