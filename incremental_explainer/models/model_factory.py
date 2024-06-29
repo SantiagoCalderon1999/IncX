@@ -1,5 +1,5 @@
 from incremental_explainer.models.model_enum import ModelEnum
-from vision_explanation_methods.explanations import common as od_common
+from incremental_explainer.models.base_model import BaseModel
 from incremental_explainer.models.rt_detr import RtDetr
 from incremental_explainer.models.yolo import Yolo
 from incremental_explainer.models.faster_rcnn import FasterRcnn
@@ -7,7 +7,7 @@ from incremental_explainer.models.faster_rcnn import FasterRcnn
 
 class ModelFactory:
     
-    def get_model(self, model: ModelEnum) -> od_common.GeneralObjectDetectionModelWrapper:
+    def get_model(self, model: ModelEnum) -> BaseModel:
         if model == ModelEnum.RT_DETR:
             return RtDetr()
         elif model == ModelEnum.YOLO:

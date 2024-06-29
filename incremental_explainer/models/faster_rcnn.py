@@ -1,8 +1,9 @@
 from vision_explanation_methods.explanations import common as od_common
 import torch, torchvision
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights, fasterrcnn_resnet50_fpn
+from incremental_explainer.models.base_model import BaseModel
 
-class FasterRcnn(od_common.GeneralObjectDetectionModelWrapper):
+class FasterRcnn(BaseModel):
     """Wraps a PytorchFasterRCNN model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have

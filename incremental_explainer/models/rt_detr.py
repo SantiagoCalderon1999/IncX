@@ -2,12 +2,12 @@
 from vision_explanation_methods.explanations import common as od_common
 import numpy as np
 import torch
-
+from incremental_explainer.models.base_model import BaseModel
 from ultralytics import RTDETR
 
 import numpy as np
 
-class RtDetr(od_common.GeneralObjectDetectionModelWrapper):
+class RtDetr(BaseModel):
     """Wraps a SwinTransformer model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have
