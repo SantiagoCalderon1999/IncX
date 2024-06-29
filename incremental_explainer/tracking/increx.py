@@ -10,33 +10,31 @@ from torchvision import transforms
 
 class IncRex:
     
-    def __init__(self, model: BaseModel, explainer_id: ExplainerEnum, object_index) -> None:
+    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_index) -> None:
         self._prev_saliency_map = []
         self._previous_bounding_box = []
         self._frame_number = 0
         self._model = model
-        self._explainer = ExplainerFactory(self._model).get_explainer(explainer_id)
+        self._explainer = explainer
         self._explanation_tracker = None
         self._object_index = object_index
     
-    def predict(self, image_location):
+    def explain(self, image):
         
-        img = cv2.imread(image_location)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         transform = transforms.Compose([
             transforms.ToTensor()
         ])
-        img_t = transform(img)
+        img_t = transform(image)
 
         prediction = self._model.predict([img_t])
         prediction = prediction[0]
         
         if self._frame_number == 0:
-            saliency_map = self._explainer.create_saliency_map(prediction, image_location)[self._object_index]
+            saliency_map = self._explainer.create_saliency_map(prediction, image)[self._object_index]
             self._explanation_tracker = SoTracker(saliency_map, prediction, self._object_index)
             bounding_box = prediction.bounding_boxes[self._object_index]
         else:
-            saliency_map, bounding_box = self._explanation_tracker.compute_tracked_explanation(img, prediction)
+            saliency_map, bounding_box = self._explanation_tracker.compute_tracked_explanation(image, prediction)
         
         self._frame_number += 1
         

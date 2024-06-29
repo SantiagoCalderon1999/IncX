@@ -30,6 +30,8 @@ class SoTracker:
     
     def compute_tracked_explanation(self, image, prediction: od_common.DetectionRecord):
         detections = [[float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score))] for bb, score in zip(prediction.bounding_boxes, prediction.class_scores)]
+        if (len(detections) == 0):
+            return (np.zeros_like(self._initial_saliency_map), self._initial_bounding_box)
         detections = np.array(detections)
         resultTracker = self._tracker.update(detections)
         center_changes = {}

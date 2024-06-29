@@ -10,11 +10,20 @@ class DRise(BaseExplainer):
         self._nummasks = nummasks
         self._model = model
 
-    def create_saliency_map(self, results, image_path):
+    def create_saliency_map_from_path(self, results, image_path: str):
         number = 0
         results_drise = []
         while (len(results.bounding_boxes) != number):
-            results_drise = dr.get_drise_saliency_map(nummasks=self._nummasks, imagelocation=image_path, model=self._model, savename="anything", numclasses=95, max_figures=2, maskres=(16,16))
+            results_drise = dr.get_drise_saliency_map_from_path(nummasks=self._nummasks, imagelocation=image_path, model=self._model, savename="anything", numclasses=95, max_figures=2, maskres=(16,16))
+            number = len(results_drise)
+
+        return [np.array(saliency_map['detection'])[0] for saliency_map in results_drise]
+    
+    def create_saliency_map(self, results, image: np.array):
+        number = 0
+        results_drise = []
+        while (len(results.bounding_boxes) != number):
+            results_drise = dr.get_drise_saliency_map(image = image, nummasks=self._nummasks, model=self._model, maskres=(16,16))
             number = len(results_drise)
 
         return [np.array(saliency_map['detection'])[0] for saliency_map in results_drise]
