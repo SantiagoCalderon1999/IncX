@@ -46,7 +46,7 @@ class IncRex:
     
     def explain_frame_sequence(self, image_set):
         alpha = 0.5
-        light_blue = (31, 112, 255)
+        light_red = (100, 28, 30)
         frames = []
         for image in tqdm(image_set, position=0, leave=True):
             saliency_maps, bounding_box, suff_explanation = self.explain_frame(image)
@@ -55,8 +55,8 @@ class IncRex:
             frame = cv2.addWeighted(
                     image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0
                 )
-            cv2.rectangle(frame, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_blue, thickness=3)
-            cv2.rectangle(suff_explanation, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_blue, thickness=3)
+            cv2.rectangle(frame, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_red, thickness=3)
+            cv2.rectangle(suff_explanation, (int(bounding_box[0]), int(bounding_box[1])), (int(bounding_box[2]), int(bounding_box[3])), light_red, thickness=3)
             frame = np.hstack((frame, suff_explanation))
             frames.append(frame)
         
