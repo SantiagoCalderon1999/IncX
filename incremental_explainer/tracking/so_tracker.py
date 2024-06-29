@@ -9,7 +9,6 @@ import cv2
 import matplotlib.pyplot as plt
 from incremental_explainer.transformations.image_scaling import scale_image
 from incremental_explainer.transformations.image_moving import move_image
-from incremental_explainer.explanations import compute_explanation
 from incremental_explainer.utils.common import calculate_intersection_over_union
 from vision_explanation_methods.explanations import common as od_common
 

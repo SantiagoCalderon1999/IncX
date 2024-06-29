@@ -1,12 +1,9 @@
 from incremental_explainer.models.base_model import BaseModel
 from incremental_explainer.explainers.base_explainer import BaseExplainer
 from incremental_explainer.tracking.so_tracker import SoTracker
-from incremental_explainer.explainers.explainer_factory import ExplainerFactory
-from incremental_explainer.explainers.explainer_enum import ExplainerEnum
-from incremental_explainer.models.model_factory import ModelFactory
-from incremental_explainer.models.model_enum import ModelEnum
-import cv2
+from incremental_explainer.utils.explanations import compute_initial_sufficient_explanation, compute_subsequent_sufficient_explanation
 from torchvision import transforms
+import numpy as np
 
 class IncRex:
     
@@ -18,6 +15,7 @@ class IncRex:
         self._explainer = explainer
         self._explanation_tracker = None
         self._object_index = object_index
+        self._exp_threshold = 0
     
     def explain(self, image):
         
@@ -33,10 +31,12 @@ class IncRex:
             saliency_map = self._explainer.create_saliency_map(prediction, image)[self._object_index]
             self._explanation_tracker = SoTracker(saliency_map, prediction, self._object_index)
             bounding_box = prediction.bounding_boxes[self._object_index]
+            sufficient_explanation, self._exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_map, image, np.argmax(prediction.class_scores[self._object_index]), bounding_box, divisions=1000)
         else:
             saliency_map, bounding_box = self._explanation_tracker.compute_tracked_explanation(image, prediction)
+            sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_threshold)
         
         self._frame_number += 1
         
         self._prev_saliency_map = saliency_map
-        return saliency_map, bounding_box
+        return saliency_map, bounding_box, sufficient_explanation

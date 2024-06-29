@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from incremental_explainer.metrics.insertion import compute_insertion_old
 from incremental_explainer.transformations.image_scaling import scale_image
 from incremental_explainer.transformations.image_moving import move_image
-from incremental_explainer.explanations import compute_explanation
+from incremental_explainer.utils.explanations import compute_explanation
 from incremental_explainer.explainers.d_rise import compute_saliency_maps
 from ultralytics import YOLO
 
