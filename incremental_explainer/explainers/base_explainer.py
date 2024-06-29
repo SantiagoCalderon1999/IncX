@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
-from vision_explanation_methods.explanations import common as od_common
+from incremental_explainer.models.base_model import BaseModel
+
 
 class BaseExplainer(ABC):
     
+    def __init__(self, model: BaseModel):
+        self._model = model
+        
     @abstractmethod
-    def create_saliency_map(self, results, image_location, model: od_common.GeneralObjectDetectionModelWrapper):
+    def create_saliency_map(self, results, image_location):
         pass
