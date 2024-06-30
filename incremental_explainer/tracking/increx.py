@@ -61,3 +61,16 @@ class IncRex:
             frames.append(frame)
         
         return frames
+    
+    def explain_video(self, video_path):
+        vid_obj  = cv2.VideoCapture(video_path)
+        frames = []
+        success, frame = vid_obj.read()
+        while success:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame)
+            success, frame = vid_obj.read()
+
+        vid_obj.release()
+        
+        return self.explain_frame_sequence(frames)

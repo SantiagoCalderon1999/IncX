@@ -29,13 +29,11 @@ def create_video(frames):
     return HTML(ani.to_jshtml())
 
 
-
-def save_video(frames, frame_number, car_set_object, box_index):
-    FPS = 30
+def save_video(frames, video_name, fps = 30):
     out = cv2.VideoWriter(
-        f"videos/{frame_number}_{car_set_object}_{box_index}.mp4",
+        f"videos/{video_name}.mp4",
         cv2.VideoWriter_fourcc(*"mp4v"),
-        FPS,
+        fps,
         (frames[0].shape[1], frames[0].shape[0]),
     )
     for frame in frames:
