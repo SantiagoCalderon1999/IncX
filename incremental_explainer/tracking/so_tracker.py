@@ -34,7 +34,7 @@ class SoTracker:
         matching_result = next((result for result in result_tracker if result[4] == self._id), np.array([]))
 
         if not matching_result.any():
-            return np.zeros_like(self._initial_saliency_map), self._initial_bounding_box
+            return np.zeros_like(self._initial_saliency_map), [0, 0, 0, 0]
 
         x1_new, y1_new, x2_new, y2_new = map(int, matching_result[:4])
         x1_old, y1_old, x2_old, y2_old = self._initial_bounding_box
