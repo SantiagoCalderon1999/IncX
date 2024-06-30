@@ -5,7 +5,7 @@ from incremental_explainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
     
 
-def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image, class_index, bounding_box, divisions=1000):
+def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image, class_index, bounding_box, divisions=10):
     masks = np.zeros((saliency_map.shape[0], saliency_map.shape[1], 3), dtype=bool)
 
     minimum = np.min(saliency_map) - np.abs(
@@ -49,8 +49,6 @@ def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image
     return np.zeros_like(image), threshold
     
 def compute_subsequent_sufficient_explanation(saliency_map, image, threshold):
-    import matplotlib as mpl
-    mpl.rcParams["savefig.pad_inches"] = 0
     masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
 
     masks[:, :, :] = False
