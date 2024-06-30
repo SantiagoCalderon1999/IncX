@@ -98,7 +98,7 @@ class IncRex:
                     scale=1.5,
                     thickness=2,
                     colorR=bright_red,
-                    font=cv2.FONT_HERSHEY_PLAIN,
+                    font=cv2.FONT_HERSHEY_DUPLEX,
                 )
                 frame = np.hstack((frame, el.sufficient_explanation))
                 object_frames.append(frame)
