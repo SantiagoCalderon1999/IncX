@@ -11,6 +11,8 @@ from typing import List
 from incremental_explainer.data_models.increx_output import IncRexOutput
 from collections import defaultdict
 from typing import Dict
+import cvzone
+from incremental_explainer.models.labels import coco_labels
 
 class IncRex:
     
@@ -21,6 +23,7 @@ class IncRex:
         self._explanation_tracker = None
         self._object_indices = set(object_indices) if object_indices else None
         self._exp_thresholds = defaultdict(int)
+        self._obj_classes_ix = defaultdict(int)
     
     def explain_frame(self, image) -> Dict[int, IncRexOutput]:
         
@@ -55,37 +58,57 @@ class IncRex:
                 bounding_boxes_dict[object_index] = prediction.bounding_boxes[object_index]
 
             self._explanation_tracker = ExpTracker(saliency_maps_dict, bounding_boxes_dict, prediction)
-            
+
             for object_index in self._object_indices:
                 bounding_box = prediction.bounding_boxes[object_index]
-                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, np.argmax(prediction.class_scores[object_index]), bounding_box)
+                self._obj_classes_ix[object_index] = np.argmax(prediction.class_scores[object_index])
+                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box)
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
-                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation)
+                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]])
 
         else:
             tracking_results = self._explanation_tracker.compute_tracked_explanation(image, prediction)
             for object_index, (saliency_map, bounding_box) in tracking_results.items():
                 sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_thresholds[object_index])
-                results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation)
+                results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]])
         
         self._frame_number += 1
         return results
     
     def explain_frame_sequence(self, image_set):
         alpha = 0.5
-        light_red = (100, 28, 30)
+        bright_red = (255, 0, 64)
         frames = []
         for image in tqdm(image_set, position=0, leave=True):
             results = self.explain_frame(image)
             object_frames = []
-            for el in results.values():
+            for object_index, el in results.items():
                 viridis_frame = plt.cm.viridis(el.saliency_map)
                 viridis_frame_rgb = viridis_frame[:, :, :3]
                 frame = cv2.addWeighted(
                     image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0
                 )
-                frame = cv2.rectangle(frame, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), light_red, thickness=3)
+                frame = cv2.rectangle(frame, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
+                el.sufficient_explanation = cv2.rectangle(el.sufficient_explanation, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
+                cvzone.putTextRect(
+                    frame,
+                    text=f"{el.label} ix: {object_index}",
+                    pos=(el.bounding_box[0] + 9, el.bounding_box[1] - 10),
+                    scale=1.5,
+                    thickness=2,
+                    colorR=bright_red,
+                    font=cv2.FONT_HERSHEY_PLAIN,
+                )
+                cvzone.putTextRect(
+                    el.sufficient_explanation,
+                    text=f"{el.label} ix: {object_index}",
+                    pos=(el.bounding_box[0] + 8, el.bounding_box[1] - 10),
+                    scale=1.5,
+                    thickness=2,
+                    colorR=bright_red,
+                    font=cv2.FONT_HERSHEY_PLAIN,
+                )
                 frame = np.hstack((frame, el.sufficient_explanation))
                 object_frames.append(frame)
             current_frame = np.vstack(object_frames)
