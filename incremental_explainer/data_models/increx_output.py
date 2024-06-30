@@ -8,6 +8,7 @@ class IncRexOutput(BaseModel):
     bounding_box: List[int]
     sufficient_explanation: np.ndarray
     label: str
+    score: float
 
     class Config:
         arbitrary_types_allowed = True

@@ -24,7 +24,9 @@ def create_video(frames):
     constant = 8
     fig = plt.figure(figsize=(constant, constant * ratio))
     ani = animation.FuncAnimation(fig, update, frames=frames, interval=60)
-    return HTML(ani.to_jshtml())
+    html_output = HTML(ani.to_jshtml())
+    plt.close(fig)
+    return html_output
 
 
 def save_video(frames, video_name, fps = 30):

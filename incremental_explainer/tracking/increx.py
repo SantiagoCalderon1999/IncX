@@ -65,13 +65,13 @@ class IncRex:
                 sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box)
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
-                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]])
+                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index])))
 
         else:
             tracking_results = self._explanation_tracker.compute_tracked_explanation(image, prediction)
-            for object_index, (saliency_map, bounding_box) in tracking_results.items():
+            for object_index, (saliency_map, bounding_box, score) in tracking_results.items():
                 sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_thresholds[object_index])
-                results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]])
+                results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=score)
         
         self._frame_number += 1
         return results
@@ -93,16 +93,7 @@ class IncRex:
                 el.sufficient_explanation = cv2.rectangle(el.sufficient_explanation, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
                 cvzone.putTextRect(
                     frame,
-                    text=f"{el.label} ix: {object_index}",
-                    pos=(el.bounding_box[0] + 9, el.bounding_box[1] - 10),
-                    scale=1.5,
-                    thickness=2,
-                    colorR=bright_red,
-                    font=cv2.FONT_HERSHEY_PLAIN,
-                )
-                cvzone.putTextRect(
-                    el.sufficient_explanation,
-                    text=f"{el.label} ix: {object_index}",
+                    text=f"{el.label}: {el.score:.2f} ix: {object_index}",
                     pos=(el.bounding_box[0] + 8, el.bounding_box[1] - 10),
                     scale=1.5,
                     thickness=2,

@@ -35,7 +35,7 @@ class ExpTracker:
         results = {}
         if not detections:
             for object_index in self._object_to_ids.keys():
-                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0)
+                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0
             return results
 
         detections = np.array(detections)
@@ -44,7 +44,7 @@ class ExpTracker:
         for object_index, id in self._object_to_ids.items():
             matching_result = next((result for result in result_tracker if result[4] == id), np.array([]))
             if len(matching_result) == 0:
-                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0)
+                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0
                 continue
 
             x1_new, y1_new, x2_new, y2_new = map(int, matching_result[:4])
@@ -77,6 +77,6 @@ class ExpTracker:
                 int(center_changes[1]),
                 (image.shape[0], image.shape[1]),
             )
-            results[object_index] = expanded_saliency_map, (x1_new, y1_new, x2_new, y2_new)
+            results[object_index] = expanded_saliency_map, (x1_new, y1_new, x2_new, y2_new), matching_result[5]
 
         return results
