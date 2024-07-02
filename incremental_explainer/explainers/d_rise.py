@@ -3,6 +3,7 @@ from vision_explanation_methods import DRISE_runner as dr
 from incremental_explainer.models.base_model import BaseModel
 from incremental_explainer.explainers.base_explainer import BaseExplainer
 import numpy as np
+import torchvision.transforms as transforms
 
 class DRise(BaseExplainer):
     
@@ -19,9 +20,14 @@ class DRise(BaseExplainer):
 
         return [np.array(saliency_map['detection'])[0] for saliency_map in results_drise]
     
-    def create_saliency_map(self, results, image: np.array):
+    def create_saliency_map(self, image: np.array):
         number = 0
         results_drise = []
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        results = self._model.predict(transform(image).unsqueeze(0))[0]
+        
         while (len(results.bounding_boxes) != number):
             results_drise = dr.get_drise_saliency_map(image = image, nummasks=self._num_mutants, model=self._model, maskres=(6,6))
             number = len(results_drise)

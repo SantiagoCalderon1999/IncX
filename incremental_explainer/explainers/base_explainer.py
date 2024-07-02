@@ -8,5 +8,5 @@ class BaseExplainer(ABC):
         self._model = model
         
     @abstractmethod
-    def create_saliency_map(self, results, image):
+    def create_saliency_map(self, image):
         pass
