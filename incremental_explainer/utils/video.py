@@ -31,7 +31,7 @@ def create_video(frames):
 
 def save_video(frames, video_name, fps = 30):
     out = cv2.VideoWriter(
-        f"videos/{video_name}.mp4",
+        f"{video_name}.mp4",
         cv2.VideoWriter_fourcc(*"mp4v"),
         fps,
         (frames[0].shape[1], frames[0].shape[0]),
