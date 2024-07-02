@@ -69,7 +69,7 @@ class IncRex:
             for object_index in self._object_indices:
                 bounding_box = prediction.bounding_boxes[object_index]
                 self._obj_classes_ix[object_index] = np.argmax(prediction.class_scores[object_index])
-                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions, minimum=np.min(saliency_maps[object_index]), maximum=np.max(saliency_maps[object_index]))
+                sufficient_explanation, exp_threshold, _ = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions, minimum=np.min(saliency_maps[object_index]), maximum=np.max(saliency_maps[object_index]))
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
                 results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index])))
@@ -79,7 +79,7 @@ class IncRex:
             for object_index, (saliency_map, bounding_box, score) in tracking_results.items():
                 if score > 0:
                     if self._test_feature:
-                        sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_map, image, self._obj_classes_ix[object_index], bounding_box, divisions=5, minimum= self._exp_thresholds[object_index] * 0.8, maximum= self._exp_thresholds[object_index] * 1.2)
+                        sufficient_explanation, exp_threshold, _ = compute_initial_sufficient_explanation(self._model, saliency_map, image, self._obj_classes_ix[object_index], bounding_box, divisions=5, minimum= self._exp_thresholds[object_index] * 0.8, maximum= self._exp_thresholds[object_index] * 1.2)
                         self._exp_thresholds[object_index] = exp_threshold
                     else:
                         sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_thresholds[object_index])

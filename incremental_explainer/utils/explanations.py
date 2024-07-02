@@ -24,13 +24,14 @@ def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image
     if minimum is None and maximum is None:
         final_suf_expl = np.zeros_like(image)
         final_threshold = minimum
+        final_mask = masks[:,:,0]
     else:
         final_threshold = (minimum + maximum) / 2
         masks.fill(False)
         pixels = np.where(saliency_map >= final_threshold)
         masks[pixels[0], pixels[1], :] = True
         final_suf_expl = np.where(masks, image, 0)
-        
+        final_mask = masks[:,:,0]
     while left < right:
         t_index = (left + right) // 2
         threshold = thresholds[t_index]
@@ -60,10 +61,11 @@ def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image
             left = t_index + 1
             final_suf_expl = suf_expl
             final_threshold = threshold
+            final_mask = masks[:,:,0]
         else:
             right = t_index - 1
     
-    return final_suf_expl, final_threshold
+    return final_suf_expl, final_threshold, final_mask
     
 def compute_subsequent_sufficient_explanation(saliency_map, image, threshold):
     masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
