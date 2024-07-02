@@ -16,7 +16,7 @@ from incremental_explainer.models.labels import coco_labels
 
 class IncRex:
     
-    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None) -> None:
+    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100) -> None:
         self._frame_number = 0
         self._model = model
         self._explainer = explainer
@@ -24,6 +24,7 @@ class IncRex:
         self._object_indices = set(object_indices) if object_indices else None
         self._exp_thresholds = defaultdict(int)
         self._obj_classes_ix = defaultdict(int)
+        self._saliency_map_divisions = saliency_map_divisions
     
     def explain_frame(self, image) -> Dict[int, IncRexOutput]:
         
@@ -36,6 +37,9 @@ class IncRex:
         prediction = prediction[0]
         results = defaultdict(IncRexOutput)
         if self._frame_number == 0:
+            
+            if len(prediction.bounding_boxes) == 0:
+                raise ValueError("No objects were detected in the first frame.")
             
             if not self._object_indices:
                 self._object_indices = set(range(len(prediction.bounding_boxes)))
@@ -62,7 +66,7 @@ class IncRex:
             for object_index in self._object_indices:
                 bounding_box = prediction.bounding_boxes[object_index]
                 self._obj_classes_ix[object_index] = np.argmax(prediction.class_scores[object_index])
-                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box)
+                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions)
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
                 results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index])))
@@ -74,17 +78,41 @@ class IncRex:
                 results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=score)
         
         self._frame_number += 1
-        return results
+        
+        bright_red = (255, 0, 64)
+        alpha = 0.5
+        object_frames = []
+        for object_index, el in results.items():
+            viridis_frame = plt.cm.jet(el.saliency_map)
+            viridis_frame_rgb = viridis_frame[:, :, :3]
+            frame = cv2.addWeighted(
+                image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0
+            )
+            frame = cv2.rectangle(frame, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
+            el.sufficient_explanation = cv2.rectangle(el.sufficient_explanation, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
+            cvzone.putTextRect(
+                frame,
+                text=f"{el.label}: {el.score:.2f} ix: {object_index}",
+                pos=(el.bounding_box[0] + 8, el.bounding_box[1] - 10),
+                scale=1.5,
+                thickness=2,
+                colorR=bright_red,
+                font=cv2.FONT_HERSHEY_DUPLEX,
+            )
+            frame = np.hstack((frame, el.sufficient_explanation))
+            object_frames.append(frame)
+        current_frame = np.vstack(object_frames)
+        return results, current_frame
     
     def explain_frame_sequence(self, image_set):
         alpha = 0.5
         bright_red = (255, 0, 64)
         frames = []
-        for image in tqdm(image_set, position=0, leave=True):
-            results = self.explain_frame(image)
+        for image in tqdm(image_set, position=0):
+            results, _ = self.explain_frame(image)
             object_frames = []
             for object_index, el in results.items():
-                viridis_frame = plt.cm.viridis(el.saliency_map)
+                viridis_frame = plt.cm.jet(el.saliency_map)
                 viridis_frame_rgb = viridis_frame[:, :, :3]
                 frame = cv2.addWeighted(
                     image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0

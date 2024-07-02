@@ -5,7 +5,7 @@ from incremental_explainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
     
 
-def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image, class_index, bounding_box, divisions=10):
+def compute_initial_sufficient_explanation(model: BaseModel, saliency_map, image, class_index, bounding_box, divisions=100):
     masks = np.zeros((saliency_map.shape[0], saliency_map.shape[1], 3), dtype=bool)
 
     minimum = np.min(saliency_map) - np.abs(

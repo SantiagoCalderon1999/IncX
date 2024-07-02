@@ -35,7 +35,7 @@ class Yolo(BaseModel):
             boxes = raw_detection[0].boxes.xyxy
             class_ids = raw_detection[0].boxes.cls
             
-            indices = scores > 0.5
+            indices = scores > 0
             
             scores = scores[indices]
             boxes = boxes[indices]
