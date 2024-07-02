@@ -13,10 +13,12 @@ from collections import defaultdict
 from typing import Dict
 import cvzone
 from incremental_explainer.models.labels import coco_labels
+import copy
+import threading
 
 class IncRex:
     
-    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100) -> None:
+    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100, test_feature = False) -> None:
         self._frame_number = 0
         self._model = model
         self._explainer = explainer
@@ -25,6 +27,7 @@ class IncRex:
         self._exp_thresholds = defaultdict(int)
         self._obj_classes_ix = defaultdict(int)
         self._saliency_map_divisions = saliency_map_divisions
+        self._test_feature = test_feature
     
     def explain_frame(self, image) -> Dict[int, IncRexOutput]:
         
@@ -53,7 +56,7 @@ class IncRex:
                     f"found by the object detector ({len(prediction.bounding_boxes)})."
                 )
                             
-            saliency_maps = self._explainer.create_saliency_map(prediction, image)
+            saliency_maps = self._explainer.create_saliency_map(image)
             
             saliency_maps_dict = defaultdict(np.array)
             bounding_boxes_dict = defaultdict(np.array)
@@ -66,7 +69,7 @@ class IncRex:
             for object_index in self._object_indices:
                 bounding_box = prediction.bounding_boxes[object_index]
                 self._obj_classes_ix[object_index] = np.argmax(prediction.class_scores[object_index])
-                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions)
+                sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions, minimum=np.min(saliency_maps[object_index]), maximum=np.max(saliency_maps[object_index]))
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
                 results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index])))
@@ -74,7 +77,14 @@ class IncRex:
         else:
             tracking_results = self._explanation_tracker.compute_tracked_explanation(image, prediction)
             for object_index, (saliency_map, bounding_box, score) in tracking_results.items():
-                sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_thresholds[object_index])
+                if score > 0:
+                    if self._test_feature:
+                        sufficient_explanation, exp_threshold = compute_initial_sufficient_explanation(self._model, saliency_map, image, self._obj_classes_ix[object_index], bounding_box, divisions=5, minimum= self._exp_thresholds[object_index] * 0.8, maximum= self._exp_thresholds[object_index] * 1.2)
+                        self._exp_thresholds[object_index] = exp_threshold
+                    else:
+                        sufficient_explanation = compute_subsequent_sufficient_explanation(saliency_map, image, self._exp_thresholds[object_index])
+                else:
+                    sufficient_explanation = np.zeros_like(image)
                 results[object_index] = IncRexOutput(saliency_map=saliency_map, bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=score)
         
         self._frame_number += 1
@@ -105,32 +115,9 @@ class IncRex:
         return results, current_frame
     
     def explain_frame_sequence(self, image_set):
-        alpha = 0.5
-        bright_red = (255, 0, 64)
         frames = []
         for image in tqdm(image_set, position=0):
-            results, _ = self.explain_frame(image)
-            object_frames = []
-            for object_index, el in results.items():
-                viridis_frame = plt.cm.jet(el.saliency_map)
-                viridis_frame_rgb = viridis_frame[:, :, :3]
-                frame = cv2.addWeighted(
-                    image, alpha, (viridis_frame_rgb * 255).astype(np.uint8), 1 - alpha, 0
-                )
-                frame = cv2.rectangle(frame, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
-                el.sufficient_explanation = cv2.rectangle(el.sufficient_explanation, (int(el.bounding_box[0]), int(el.bounding_box[1])), (int(el.bounding_box[2]), int(el.bounding_box[3])), bright_red, thickness=3)
-                cvzone.putTextRect(
-                    frame,
-                    text=f"{el.label}: {el.score:.2f} ix: {object_index}",
-                    pos=(el.bounding_box[0] + 8, el.bounding_box[1] - 10),
-                    scale=1.5,
-                    thickness=2,
-                    colorR=bright_red,
-                    font=cv2.FONT_HERSHEY_DUPLEX,
-                )
-                frame = np.hstack((frame, el.sufficient_explanation))
-                object_frames.append(frame)
-            current_frame = np.vstack(object_frames)
+            _, current_frame = self.explain_frame(image)
             frames.append(current_frame)
         
         return frames
@@ -147,3 +134,15 @@ class IncRex:
         vid_obj.release()
         
         return self.explain_frame_sequence(frames)
+    
+    def __deepcopy__(self, memo):
+        # Create a deep copy manually
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+        memo[id(self)] = new_instance
+        for k, v in self.__dict__.items():
+            if k == 'lock':
+                new_instance.__dict__[k] = threading.Lock()  # Replace with a new lock
+            else:
+                new_instance.__dict__[k] = copy.deepcopy(v, memo)
+        return new_instance
