@@ -18,7 +18,7 @@ import threading
 
 class IncRex:
     
-    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100, test_feature = False) -> None:
+    def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100, test_feature = True) -> None:
         self._frame_number = 0
         self._model = model
         self._explainer = explainer
@@ -134,15 +134,3 @@ class IncRex:
         vid_obj.release()
         
         return self.explain_frame_sequence(frames)
-    
-    def __deepcopy__(self, memo):
-        # Create a deep copy manually
-        cls = self.__class__
-        new_instance = cls.__new__(cls)
-        memo[id(self)] = new_instance
-        for k, v in self.__dict__.items():
-            if k == 'lock':
-                new_instance.__dict__[k] = threading.Lock()  # Replace with a new lock
-            else:
-                new_instance.__dict__[k] = copy.deepcopy(v, memo)
-        return new_instance
