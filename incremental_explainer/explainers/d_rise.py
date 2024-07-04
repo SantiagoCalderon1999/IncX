@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 
 class DRise(BaseExplainer):
     
-    def __init__(self, model: BaseModel, num_mutants = 500) -> None:
+    def __init__(self, model: BaseModel, num_mutants = 1000) -> None:
         self._num_mutants = num_mutants
         self._model = model
 
