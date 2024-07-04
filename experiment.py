@@ -10,12 +10,17 @@ from incremental_explainer.models.model_factory import ModelFactory
 from incremental_explainer.explainers.explainer_factory import ExplainerFactory
 import torchvision.transforms as transforms
 import numpy as np
-from incremental_explainer.metrics.deletion import compute_deletion
-from incremental_explainer.metrics.insertion import compute_insertion
-from incremental_explainer.metrics.epg import compute_energy_based_pointing_game
-from incremental_explainer.metrics.exp_proportion import compute_explanation_proportion
+from incremental_explainer.metrics.saliency_maps.deletion import compute_deletion
+from incremental_explainer.metrics.saliency_maps.insertion import compute_insertion
+from incremental_explainer.metrics.saliency_maps.epg import compute_energy_based_pointing_game
+from incremental_explainer.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
+from incremental_explainer.utils.explanations import compute_initial_sufficient_explanation
 import time
 import portalocker
+from PIL import Image
+from azure.storage.blob import BlobServiceClient
+import os
+from dotenv import load_dotenv
 
 if __name__ == "__main__":
 
@@ -44,27 +49,38 @@ if __name__ == "__main__":
 
     random.shuffle(job_array)
 
-    pickle_file_name = './results/baseline.pkl'
-
     curr_pickle = {}
-
-    if os.path.exists(pickle_file_name):
-        with open(pickle_file_name, 'rb') as file:
-            curr_pickle = pickle.load(file)
-    job_pickle = set(job_array) - set(curr_pickle.keys())
+    load_dotenv()
+    AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+    AZURE_CONTAINER_NAME = os.environ.get("AZURE_STORAGE_CONTAINER_NAME")
+    blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
     
+    container_client = blob_service_client.get_container_client(container=AZURE_CONTAINER_NAME)
+    
+    blob_list = container_client.list_blobs()
+    
+    finished_jobs = []
+    for blob in blob_list:
+        array = blob.name.split('/')
+        finished_jobs.append((array[0], array[1], "./datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
+    print(f"Total jobs: {len(job_array)}")
+    print(f"Finished jobs: {len(finished_jobs)}")
+    print(f"Finished jobs: {finished_jobs}")
+    job_pickle = set(job_array) - set(finished_jobs)
+    print(f"Remaining jobs: {len(job_pickle)}")
     for job_key in job_pickle:
         explainer_name, model_name, image_location = job_key
 
+        finished_jobs = []
+        blob_list = container_client.list_blobs()
+        for blob in blob_list:
+            array = blob.name.split('/')
+            finished_jobs.append((array[0], array[1], "./datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
 
-        if os.path.exists(pickle_file_name):
-            with open(pickle_file_name, 'rb') as file:
-                curr_pickle = pickle.load(file)
-
-        if job_key in set(curr_pickle.keys()):
+        if job_key in set(finished_jobs):
             print(f"Skipping image: {image_location}, model: {model_name}, explainer: {explainer_name}")
             continue
-
+        print(f"Finished jobs: {len(finished_jobs)}")
         print(f"Processing image: {image_location}, model: {model_name}, explainer: {explainer_name}")
         model = ModelFactory().get_model(ModelEnum[model_name])
         img = cv2.imread(image_location)
@@ -76,8 +92,8 @@ if __name__ == "__main__":
 
         start_time = time.time()
         results = model.predict([img_t])
-        explainer = ExplainerFactory(results).get_explainer(ExplainerEnum[explainer_name])
-        saliency = explainer.create_saliency_map(image_location, model)
+        explainer = ExplainerFactory(model).get_explainer(ExplainerEnum[explainer_name])
+        saliency_maps = explainer.create_saliency_map(np.array(Image.open(image_location)))
         explanation_time = time.time() - start_time
 
         results_array = []
@@ -87,12 +103,13 @@ if __name__ == "__main__":
         for object_index in range(objects_number):
             print(f"Started metrics: {image_location} for index {object_index} / {len(results[0].class_scores) - 1}")
             class_index = np.argmax(results[0].class_scores[object_index].detach())
-            saliency_map = np.array(saliency[object_index]['detection']).transpose(1, 2, 0)[:,:,0]
             bounding_box = np.array(results[0].bounding_boxes[object_index].cpu().detach())
+            saliency_map = saliency_maps[object_index]
             deletion = compute_deletion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
             insertion = compute_insertion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
             epg = compute_energy_based_pointing_game(saliency_map, bounding_box)
-            exp_prop, suf_exp = compute_explanation_proportion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
+            suf_expl, _, mask = compute_initial_sufficient_explanation(model, saliency_map, img, class_index, bounding_box, divisions=divisions)
+            exp_prop = compute_explanation_proportion(mask)
             print(f"Finished metrics: {image_location} for index {object_index} / {len(results[0].class_scores) - 1}")
 
             results_dict = {
@@ -107,24 +124,19 @@ if __name__ == "__main__":
                     "bounding_box": bounding_box,
                     "class_index": int(class_index),
                     "class_score": max(results[0].class_scores[object_index].detach().numpy())
+                },
+                "maps": {
+                    "saliency_map": saliency_map,
+                    "sufficient_explanation": suf_expl,
+                    "mask": mask
                 }
             }
             results_array.append(results_dict)
 
-        curr_pickle = {}
+        results_array_bytes = pickle.dumps(results_array)
 
-        if os.path.exists(pickle_file_name):
-            with open(pickle_file_name, 'rb') as file:
-                curr_pickle = pickle.load(file)
-
-        curr_pickle[job_key] = results_array
-
-        with open(pickle_file_name, 'wb') as file:
-            portalocker.lock(file, portalocker.LOCK_EX)
-            try:
-                pickle.dump(curr_pickle, file)
-            finally:
-                portalocker.unlock(file)
+        blob_client = blob_service_client.get_blob_client(container="experiment", blob=f"{explainer_name}/{model_name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl")
+        blob_client.upload_blob(results_array_bytes)
             
         print(f"Finished image: {image_location}, model: {model_name}, explainer: {explainer_name}")
         print('---------------------------------')
