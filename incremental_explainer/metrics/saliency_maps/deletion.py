@@ -5,6 +5,7 @@ from numpy import trapz
 from incremental_explainer.utils.common import calculate_intersection_over_union
 from vision_explanation_methods.explanations import common as od_common
 import torchvision.transforms as transforms
+from tqdm import tqdm
 
 def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, divisions=100, verbose = False):
         import matplotlib as mpl
@@ -12,16 +13,12 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
         masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
         conf_deletion_list = []
         divisions_list_in = []
-        minimum = np.min(saliency_map) - np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.2
-        )
-        maximum = np.max(saliency_map) + np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.1
-        )
+        minimum = np.min(saliency_map)
+        maximum = np.max(saliency_map)
+        thresholds = np.linspace(start=minimum, stop=maximum, num=divisions).tolist()
         im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
-        for sub_index in range(0, divisions):
+        for threshold in tqdm(thresholds):
             masks[:, :, :] = False
-            threshold = maximum + (sub_index / divisions) * (minimum - maximum)
             pixels = np.where(saliency_map <= threshold)
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)

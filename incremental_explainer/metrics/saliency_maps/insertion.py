@@ -5,40 +5,7 @@ from numpy import trapz
 from incremental_explainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
 from vision_explanation_methods.explanations import common as od_common
-
-def compute_insertion_old(model, saliency_map, image, class_index, divisions=100):
-
-        masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
-        conf_insertion_list = []
-        divisions_list_in = []
-        minimum = np.min(saliency_map) - np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.2
-        )
-        maximum = np.max(saliency_map) + np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.1
-        )
-        for sub_index in range(0, divisions):
-            masks[:, :, :] = False
-            threshold = maximum + (sub_index / divisions) * (minimum - maximum)
-            pixels = np.where(saliency_map >= threshold)
-            masks[pixels[0], pixels[1], :] = True
-            divisions_list_in.append(
-                len(pixels[0]) / (saliency_map.shape[0] * saliency_map.shape[1])
-            )
-            min_expl = np.where(masks, image, 0)
-            detection = model(min_expl, classes=class_index, verbose=False)
-            conf = (
-                detection[0].boxes.conf[0]
-                if (len(detection[0].boxes.conf) > 0)
-                else detection[0].boxes.conf
-            )
-            conf_insertion_list.append(conf)
-        conf_insertion_list = [
-            np.sum(conf.numpy()) if conf.numpy().size > 0 else 0
-            for conf in conf_insertion_list
-        ]
-    
-        return trapz(conf_insertion_list, divisions_list_in)
+from tqdm import tqdm
     
 def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, divisions=100, verbose = False):
         import matplotlib as mpl
@@ -46,16 +13,12 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
         masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
         conf_insertion_list = []
         divisions_list_in = []
-        minimum = np.min(saliency_map) - np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.2
-        )
-        maximum = np.max(saliency_map) + np.abs(
-            (np.min(saliency_map) - np.max(saliency_map)) * 0.1
-        )
+        minimum = np.min(saliency_map)
+        maximum = np.max(saliency_map)
+        thresholds = np.linspace(start=minimum, stop=maximum, num=divisions).tolist()
         im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
-        for sub_index in range(0, divisions):
+        for threshold in tqdm(thresholds):
             masks[:, :, :] = False
-            threshold = maximum + (sub_index / divisions) * (minimum - maximum)
             pixels = np.where(saliency_map >= threshold)
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)
