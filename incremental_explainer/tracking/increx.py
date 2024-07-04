@@ -71,7 +71,7 @@ class IncRex:
                 sufficient_explanation, exp_threshold, mask = compute_initial_sufficient_explanation(self._model, saliency_maps[object_index], image, self._obj_classes_ix[object_index], bounding_box, divisions=self._saliency_map_divisions, minimum=np.min(saliency_maps[object_index]), maximum=np.max(saliency_maps[object_index]))
                 self._exp_thresholds[object_index] = exp_threshold
                 bounding_box = (int(bounding_box[0]), int(bounding_box[1]), int(bounding_box[2]), int(bounding_box[3]))
-                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index]), mask=mask))
+                results[object_index] = IncRexOutput(saliency_map=saliency_maps[object_index], bounding_box=bounding_box, sufficient_explanation=sufficient_explanation, label=coco_labels[self._obj_classes_ix[object_index]], score=float(max(prediction.class_scores[object_index])), mask=mask)
 
         else:
             tracking_results = self._explanation_tracker.compute_tracked_explanation(image, prediction)
