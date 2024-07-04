@@ -15,7 +15,7 @@ class ExpTracker:
         
         self._initial_saliency_maps = initial_saliency_maps
         self._initial_bounding_boxes = initial_bounding_boxes
-        self._tracker = Sort(max_age=120, min_hits=3, iou_threshold=0.3)
+        self._tracker = Sort(max_age=500, min_hits=3, iou_threshold=0.3)
         detections = [[float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score))] for bb, score in zip(initial_prediction.bounding_boxes, initial_prediction.class_scores)]
         detections = np.array(detections)
         tracked = self._tracker.update(detections)
