@@ -94,12 +94,19 @@ if __name__ == "__main__":
         results = model.predict([img_t])
         explainer = ExplainerFactory(model).get_explainer(ExplainerEnum[explainer_name])
         saliency_maps = explainer.create_saliency_map(np.array(Image.open(image_location)))
-        explanation_time = time.time() - start_time
-
-        results_array = []
-
+        
         divisions = 100
         objects_number = len(results[0].class_scores)
+        for object_index in range(objects_number):
+            saliency_map = saliency_maps[object_index]
+            class_index = np.argmax(results[0].class_scores[object_index].detach())
+            bounding_box = np.array(results[0].bounding_boxes[object_index].cpu().detach())
+            suf_expl, _, mask = compute_initial_sufficient_explanation(model, saliency_map, img, class_index, bounding_box, divisions=divisions)
+            
+        explanation_time = time.time() - start_time
+        
+        results_array = []
+
         for object_index in range(objects_number):
             print(f"Started metrics: {image_location} for index {object_index} / {len(results[0].class_scores) - 1}")
             class_index = np.argmax(results[0].class_scores[object_index].detach())
@@ -108,7 +115,7 @@ if __name__ == "__main__":
             deletion = compute_deletion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
             insertion = compute_insertion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
             epg = compute_energy_based_pointing_game(saliency_map, bounding_box)
-            suf_expl, _, mask = compute_initial_sufficient_explanation(model, saliency_map, img, class_index, bounding_box, divisions=divisions)
+            
             exp_prop = compute_explanation_proportion(mask)
             print(f"Finished metrics: {image_location} for index {object_index} / {len(results[0].class_scores) - 1}")
 
