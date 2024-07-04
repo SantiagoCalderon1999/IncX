@@ -1,6 +1,4 @@
-# CPUs limit is roughly 380 (Estimation)
-
-for (( j=1; j<=380; j++ ))
+for (( j=1; j<=700; j++ ))
 do
     sbatch batch_experiment.sh
 done
