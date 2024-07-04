@@ -48,7 +48,7 @@ class ExpTracker:
                 continue
 
             x1_new, y1_new, x2_new, y2_new = map(int, matching_result[:4])
-            x1_old, y1_old, x2_old, y2_old = self._initial_bounding_boxes[object_index]
+            x1_old, y1_old, x2_old, y2_old = self._initial_bounding_boxes[object_index].cpu().numpy().astype(int)
 
             old_width, old_height = abs(x1_old - x2_old), abs(y1_old - y2_old)
             new_width, new_height = abs(x1_new - x2_new), abs(y1_new - y2_new)

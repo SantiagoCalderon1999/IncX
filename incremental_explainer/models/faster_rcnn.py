@@ -1,10 +1,11 @@
 from vision_explanation_methods.explanations import common as od_common
-import torch, torchvision
+import torch
+import torchvision
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights, fasterrcnn_resnet50_fpn
 from incremental_explainer.models.base_model import BaseModel
 
 class FasterRcnn(BaseModel):
-    """Wraps a PytorchFasterRCNN model with a predict API function for object detection.
+    """Wraps a Pytorch FasterRCNN model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have
     the same output and input class.
@@ -13,19 +14,32 @@ class FasterRcnn(BaseModel):
     """
     
     def __init__(self):
+        # Load the pre-trained FasterRCNN model
         model = fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.COCO_V1)
         model.eval()
+        
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        model.to(self.device)
         self._model = model
+        
         self._number_of_classes = 91
 
     def predict(self, x: torch.Tensor):
         """Creates a list of detection records from the image predictions.
+        
+        Args:
+            x (torch.Tensor): A tensor containing the input images.
+        
+        Returns:
+            list: A list of detection records.
         """
-        raw_detections = self._model(x)
+        x = [img.to(self.device) for img in x]
+    
+        with torch.no_grad():
+            raw_detections = self._model(x)
 
         def apply_nms(orig_prediction: dict, iou_thresh: float=0.5):
-            """Performs non maximum suppression on the predictions according to their intersection-over-union.
-            """
             keep = torchvision.ops.nms(orig_prediction['boxes'], orig_prediction['scores'], iou_thresh)
 
             nms_prediction = orig_prediction
@@ -35,8 +49,6 @@ class FasterRcnn(BaseModel):
             return nms_prediction
         
         def filter_score(orig_prediction: dict, score_thresh: float=0.5):
-            """Filters out model predictions with confidence scores below score_thresh
-            """
             keep = orig_prediction['scores'] > score_thresh
 
             filter_prediction = orig_prediction
@@ -47,7 +59,7 @@ class FasterRcnn(BaseModel):
         
         detections = [] 
         for raw_detection in raw_detections:
-            raw_detection = apply_nms(raw_detection,0.005)
+            raw_detection = apply_nms(raw_detection, 0.005)
             
             # Note that FasterRCNN doesn't return a score for each class, only the predicted class
             # DRISE requires a score for each class. We approximate the score for each class
@@ -62,7 +74,6 @@ class FasterRcnn(BaseModel):
                     bounding_boxes=raw_detection['boxes'],
                     class_scores=expanded_class_scores,
                     objectness_scores=torch.tensor([1.0]*raw_detection['boxes'].shape[0]),
-                    
                 )
             )
         
