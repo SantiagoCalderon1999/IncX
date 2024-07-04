@@ -23,7 +23,7 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)
             divisions_list_in.append(
-                div
+                1 - div
             )
             min_expl = np.where(masks, image, 0)
             transform = transforms.Compose([

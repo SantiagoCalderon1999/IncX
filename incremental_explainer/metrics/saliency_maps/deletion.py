@@ -23,7 +23,7 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)
             divisions_list_in.append(
-                1 - div
+                div
             )
             min_expl = np.where(masks, image, 0)
             
