@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
         results_array_bytes = pickle.dumps(results_array)
 
-        blob_client = blob_service_client.get_blob_client(container="experiment", blob=f"{explainer_name}/{model_name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl")
+        blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=f"{explainer_name}/{model_name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl")
         blob_client.upload_blob(results_array_bytes)
             
         print(f"Finished image: {image_location}, model: {model_name}, explainer: {explainer_name}")
