@@ -1,5 +1,4 @@
-from sort import *
-from sort import *
+from dependencies.sort.sort import *
 import numpy as np
 
 from incremental_explainer.transformations.image_scaling import scale_image
