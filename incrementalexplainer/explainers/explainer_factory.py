@@ -1,7 +1,7 @@
-from incremental_explainer.explainers.explainer_enum import ExplainerEnum
-from incremental_explainer.explainers.d_rise import DRise
-from incremental_explainer.explainers.base_explainer import BaseExplainer
-from incremental_explainer.models.base_model import BaseModel
+from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
+from incrementalexplainer.explainers.d_rise import DRise
+from incrementalexplainer.explainers.base_explainer import BaseExplainer
+from incrementalexplainer.models.base_model import BaseModel
 
 class ExplainerFactory:
     

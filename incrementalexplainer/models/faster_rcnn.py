@@ -2,7 +2,7 @@ from vision_explanation_methods.explanations import common as od_common
 import torch
 import torchvision
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights, fasterrcnn_resnet50_fpn
-from incremental_explainer.models.base_model import BaseModel
+from incrementalexplainer.models.base_model import BaseModel
 
 class FasterRcnn(BaseModel):
     """Wraps a Pytorch FasterRCNN model with a predict API function for object detection.

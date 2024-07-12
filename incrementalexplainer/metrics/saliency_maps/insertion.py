@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics
 from numpy import trapz
-from incremental_explainer.utils.common import calculate_intersection_over_union
+from incrementalexplainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
 from vision_explanation_methods.explanations import common as od_common
 from tqdm import tqdm

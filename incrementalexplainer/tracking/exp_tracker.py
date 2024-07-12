@@ -1,8 +1,8 @@
 from dependencies.sort.sort import *
 import numpy as np
 
-from incremental_explainer.transformations.image_scaling import scale_image
-from incremental_explainer.transformations.image_moving import move_image
+from incrementalexplainer.transformations.image_scaling import scale_image
+from incrementalexplainer.transformations.image_moving import move_image
 from vision_explanation_methods.explanations import common as od_common
 from collections import defaultdict
 

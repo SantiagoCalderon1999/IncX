@@ -2,7 +2,7 @@
 from vision_explanation_methods.explanations import common as od_common
 import numpy as np
 import torch
-from incremental_explainer.models.base_model import BaseModel
+from incrementalexplainer.models.base_model import BaseModel
 from ultralytics import YOLO
 
 import numpy as np

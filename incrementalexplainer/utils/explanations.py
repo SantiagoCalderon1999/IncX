@@ -1,7 +1,7 @@
 import numpy as np
-from incremental_explainer.models.base_model import BaseModel
+from incrementalexplainer.models.base_model import BaseModel
 import matplotlib.pyplot as plt
-from incremental_explainer.utils.common import calculate_intersection_over_union
+from incrementalexplainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
     
 

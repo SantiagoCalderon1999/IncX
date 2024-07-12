@@ -1,7 +1,7 @@
 from typing import Any
 from vision_explanation_methods import DRISE_runner as dr
-from incremental_explainer.models.base_model import BaseModel
-from incremental_explainer.explainers.base_explainer import BaseExplainer
+from incrementalexplainer.models.base_model import BaseModel
+from incrementalexplainer.explainers.base_explainer import BaseExplainer
 import numpy as np
 import torchvision.transforms as transforms
 

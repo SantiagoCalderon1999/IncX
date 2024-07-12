@@ -1,20 +1,20 @@
 from datasets.dataset_enum import DatasetEnum
 import os
 import random
-from incremental_explainer.models.model_enum import ModelEnum
-from incremental_explainer.explainers.explainer_enum import ExplainerEnum
+from incrementalexplainer.models.model_enum import ModelEnum
+from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
 import pickle
 import cv2
-from incremental_explainer.models.model_factory import ModelFactory
+from incrementalexplainer.models.model_factory import ModelFactory
 
-from incremental_explainer.explainers.explainer_factory import ExplainerFactory
+from incrementalexplainer.explainers.explainer_factory import ExplainerFactory
 import torchvision.transforms as transforms
 import numpy as np
-from incremental_explainer.metrics.saliency_maps.deletion import compute_deletion
-from incremental_explainer.metrics.saliency_maps.insertion import compute_insertion
-from incremental_explainer.metrics.saliency_maps.epg import compute_energy_based_pointing_game
-from incremental_explainer.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
-from incremental_explainer.utils.explanations import compute_initial_sufficient_explanation
+from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
+from incrementalexplainer.metrics.saliency_maps.insertion import compute_insertion
+from incrementalexplainer.metrics.saliency_maps.epg import compute_energy_based_pointing_game
+from incrementalexplainer.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
+from incrementalexplainer.utils.explanations import compute_initial_sufficient_explanation
 import time
 import portalocker
 from PIL import Image

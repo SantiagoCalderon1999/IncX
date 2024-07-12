@@ -1,18 +1,18 @@
-from incremental_explainer.models.base_model import BaseModel
-from incremental_explainer.explainers.base_explainer import BaseExplainer
-from incremental_explainer.tracking.exp_tracker import ExpTracker
-from incremental_explainer.utils.explanations import compute_initial_sufficient_explanation, compute_subsequent_sufficient_explanation
+from incrementalexplainer.models.base_model import BaseModel
+from incrementalexplainer.explainers.base_explainer import BaseExplainer
+from incrementalexplainer.tracking.exp_tracker import ExpTracker
+from incrementalexplainer.utils.explanations import compute_initial_sufficient_explanation, compute_subsequent_sufficient_explanation
 from torchvision import transforms
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from tqdm import tqdm
 from typing import List
-from incremental_explainer.data_models.increx_output import IncRexOutput
+from incrementalexplainer.data_models.increx_output import IncRexOutput
 from collections import defaultdict
 from typing import Dict
 import cvzone
-from incremental_explainer.models.labels import coco_labels
+from incrementalexplainer.models.labels import coco_labels
 
 
 class IncRex:
