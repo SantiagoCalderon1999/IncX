@@ -1,5 +1,5 @@
 
-from vision_explanation_methods.explanations import common as od_common
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 import numpy as np
 import torch
 from incrementalexplainer.models.base_model import BaseModel

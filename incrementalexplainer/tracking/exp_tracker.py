@@ -3,7 +3,7 @@ import numpy as np
 
 from incrementalexplainer.transformations.image_scaling import scale_image
 from incrementalexplainer.transformations.image_moving import move_image
-from vision_explanation_methods.explanations import common as od_common
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 from collections import defaultdict
 
 class ExpTracker:

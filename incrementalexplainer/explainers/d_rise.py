@@ -1,5 +1,5 @@
 from typing import Any
-from vision_explanation_methods import DRISE_runner as dr
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods import DRISE_runner as dr
 from incrementalexplainer.models.base_model import BaseModel
 from incrementalexplainer.explainers.base_explainer import BaseExplainer
 import numpy as np

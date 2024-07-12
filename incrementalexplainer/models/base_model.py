@@ -1,4 +1,4 @@
-from vision_explanation_methods.explanations import common as od_common
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 import torch
 from typing import List
 from abc import ABC, abstractmethod

@@ -4,7 +4,7 @@ from sklearn import metrics
 from numpy import trapz
 from incrementalexplainer.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
-from vision_explanation_methods.explanations import common as od_common
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 from tqdm import tqdm
     
 def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, divisions=100, verbose = False):
