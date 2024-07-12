@@ -329,6 +329,20 @@ test = ["Pillow", "contourpy[test-no-images]", "matplotlib"]
 test-no-images = ["pytest", "pytest-cov", "pytest-xdist", "wurlitzer"]
 
 [[package]]
+name = "cvzone"
+version = "1.6.1"
+description = "Computer Vision Helping Library"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "cvzone-1.6.1.tar.gz", hash = "sha256:a6bea5834647b6fc52a44d8b4b670f8c88b2d4f0fc56549b4024ce224f0d3979"},
+]
+
+[package.dependencies]
+numpy = "*"
+opencv-python = "*"
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 description = "Composable style cycles"
@@ -2488,4 +2502,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "004f30dc42da895a3e3de75f11b843928f28148ff057c0982d48cff22971a7c7"
+content-hash = "2c8183f5ec89ade796f7f98bdfe8ec510816d83897e0d0ccac467a62679863ed"

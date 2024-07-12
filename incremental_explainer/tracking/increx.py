@@ -13,8 +13,7 @@ from collections import defaultdict
 from typing import Dict
 import cvzone
 from incremental_explainer.models.labels import coco_labels
-import copy
-import threading
+
 
 class IncRex:
     
