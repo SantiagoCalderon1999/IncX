@@ -9,7 +9,7 @@ readme = "README.md"
 python = ">=3.11,<3.13"
 opencv-python = "4.9.0.80"
 ipykernel = "^6.29.5"
-vision-explanation-methods = {path = "dependencies/d-rise"}
+vision-explanation-methods = {path = "incrementalexplainer/dependencies/d-rise"}
 matplotlib = "3.6.3"
 numpy = "1.26.0"
 scikit-image = "^0.24.0"

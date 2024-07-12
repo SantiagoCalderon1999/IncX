@@ -2486,7 +2486,7 @@ tqdm = "*"
 
 [package.source]
 type = "directory"
-url = "dependencies/d-rise"
+url = "incrementalexplainer/dependencies/d-rise"
 
 [[package]]
 name = "wcwidth"
@@ -2502,4 +2502,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "2c8183f5ec89ade796f7f98bdfe8ec510816d83897e0d0ccac467a62679863ed"
+content-hash = "2d91964a4e6365f522b719e2c094d18bb51c7a613d7dffabeab676a9e1eaa782"
