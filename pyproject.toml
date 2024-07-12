@@ -6,8 +6,26 @@ authors = ["Santiago Calderón <santiagocalderon1999@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
+opencv-python = "4.9.0.80"
+ipykernel = "^6.29.5"
+vision-explanation-methods = {path = "dependencies/d-rise"}
+matplotlib = "3.6.3"
+numpy = "1.26.0"
+scikit-image = "^0.24.0"
+filterpy = "^1.4.5"
+pydantic = "^2.8.2"
+ultralytics = "^8.2.55"
+captum = "^0.7.0"
+dill = "^0.3.8"
+torch = {version = "^2.3.1+cu118", source = "torchcu118"}
+torchvision = {version = "^0.18.1+cu118", source = "torchcu118"}
+ml-wrappers = "^0.5.5"
 
+[[tool.poetry.source]]
+name = "torchcu118"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]
