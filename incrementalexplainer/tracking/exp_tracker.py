@@ -1,4 +1,4 @@
-from dependencies.sort.sort import *
+from incrementalexplainer.dependencies.sort.sort import *
 import numpy as np
 
 from incrementalexplainer.transformations.image_scaling import scale_image
