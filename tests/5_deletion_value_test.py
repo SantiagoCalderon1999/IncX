@@ -5,7 +5,7 @@ from incrementalexplainer.explainers.d_rise import DRise
 import numpy as np
 from PIL import Image
 import cv2
-from incrementalexplainer.metrics.saliency_maps.insertion import compute_insertion
+from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
 
 def test_insertion_value():
     
@@ -18,17 +18,17 @@ def test_insertion_value():
 
     # When
 
-    average_insertion = 0
+    average_deletion = 0
     for i, image in enumerate(images):
         results,_ = incRex.explain_frame(image)
         result = results[0]
-        insertion = compute_insertion(model, result.saliency_map, image, 2, result.bounding_box, divisions = 100)
+        deletion = compute_deletion(model, result.saliency_map, image, 2, result.bounding_box, divisions = 100)
         if i != 0:
-            average_insertion += insertion
-    average_insertion = average_insertion / (len(images)-1)
+            average_deletion += deletion
+    average_deletion = average_deletion / (len(images)-1)
     
     # Then
-    assert average_insertion > 0.4
+    assert average_deletion < 0.1
 
 def resize_image(image_path, target_size):
     pil_image = Image.open(image_path)

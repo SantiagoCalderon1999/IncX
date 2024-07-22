@@ -10,7 +10,7 @@ import cv2
 def test_latency_measurement():
     
     # Given
-    image_locations = [f'../datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
+    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
     images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
