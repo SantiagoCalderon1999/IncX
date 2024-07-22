@@ -16,6 +16,7 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
         minimum = np.min(saliency_map)
         maximum = np.max(saliency_map)
         thresholds = np.linspace(start=minimum, stop=maximum, num=divisions).tolist()
+        thresholds = thresholds[::-1]
         im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
         for threshold in tqdm(thresholds):
             masks[:, :, :] = False
@@ -23,7 +24,7 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)
             divisions_list_in.append(
-                div
+                1-div
             )
             min_expl = np.where(masks, image, 0)
             
@@ -51,5 +52,6 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
         if verbose:
             plt.plot(divisions_list_in, conf_deletion_list)
             plt.title(f'Deletion curve - AUC = {auc}')
-    
+            plt.show()
+            
         return auc
