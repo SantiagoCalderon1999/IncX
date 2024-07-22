@@ -17,7 +17,6 @@ def test_deletion_value():
     incRex = IncRex(model, explainer)
 
     # When
-
     average_deletion = 0
     for i, image in enumerate(images):
         results,_ = incRex.explain_frame(image)
