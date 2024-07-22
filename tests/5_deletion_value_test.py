@@ -7,7 +7,7 @@ from PIL import Image
 import cv2
 from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
 
-def test_insertion_value():
+def test_deletion_value():
     
     # Given
     image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
