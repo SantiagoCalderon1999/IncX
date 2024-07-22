@@ -7,7 +7,7 @@ from PIL import Image
 import cv2
 from incrementalexplainer.metrics.saliency_maps.epg import compute_energy_based_pointing_game
 
-def test_insertion_value():
+def test_epg_value():
     
     # Given
     image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
