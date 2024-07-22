@@ -10,15 +10,15 @@ import cv2
 def test_consecutive_image_support():
     
     # Given
-    image_location = f'datasets/LASOT/1/{str(1).zfill(8)}.jpg'
-    image = resize_image(image_location, (640, 480))
+    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 5)]
+    images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
     incRex = IncRex(model, explainer)
 
     # When
-    result = incRex.explain_frame(image)
-
+    result = incRex.explain_frame_sequence(images)
+    
     # Then
     assert result is not None
 
