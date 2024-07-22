@@ -7,7 +7,7 @@ import time
 from PIL import Image
 import cv2
 
-def test_latency_measurement():
+def test_single_image_support():
     
     # Given
     image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 5)]
