@@ -16,6 +16,7 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
         minimum = np.min(saliency_map)
         maximum = np.max(saliency_map)
         thresholds = np.linspace(start=minimum, stop=maximum, num=divisions).tolist()
+        thresholds = thresholds[::-1]
         im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
         for threshold in tqdm(thresholds):
             masks[:, :, :] = False
@@ -23,7 +24,7 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
             masks[pixels[0], pixels[1], :] = True
             div = len(np.where(masks)[0]) / (im_size)
             divisions_list_in.append(
-                1 - div
+                div
             )
             min_expl = np.where(masks, image, 0)
             transform = transforms.Compose([
@@ -44,11 +45,10 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
 
             conf_insertion_list.append(max_confidence)
 
-
         auc = trapz(conf_insertion_list, divisions_list_in)
-        
         if verbose:
             plt.plot(divisions_list_in, conf_insertion_list)
             plt.title(f'Insertion curve - AUC = {auc}')
+            plt.show()
     
         return auc
