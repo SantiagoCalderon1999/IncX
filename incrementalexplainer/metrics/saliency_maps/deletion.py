@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from sklearn import metrics
 from numpy import trapz
 from incrementalexplainer.utils.common import calculate_intersection_over_union
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 import torchvision.transforms as transforms
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 from tqdm import tqdm
 
 def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, divisions=100, verbose = False):
@@ -46,12 +47,23 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
             else:
                 max_confidence = 0
 
-            conf_deletion_list.append(max_confidence)
+            conf_deletion_list.append(float(max_confidence))
 
         auc = trapz(conf_deletion_list, divisions_list_in)
         if verbose:
-            plt.plot(divisions_list_in, conf_deletion_list)
-            plt.title(f'Deletion curve - AUC = {auc}')
+            sns.set_theme(style="whitegrid")
+
+            plt.figure(figsize=(10, 6))
+            sns.lineplot(x=divisions_list_in, y=conf_deletion_list, label='Deletion Curve')
+
+            plt.fill_between(divisions_list_in, conf_deletion_list, alpha=0.3)
+
+            plt.title(f'Deletion Curve - AUC = {auc}', fontsize=16)
+            plt.xlabel('Divisions', fontsize=14)
+            plt.ylabel('Deletion Score', fontsize=14)
+
+            plt.legend()
+
             plt.show()
             
         return auc
