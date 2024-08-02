@@ -23,11 +23,12 @@ def main():
     jobs_file_lock = "jobs.lock"
 
     lock_data_file = FileLock(jobs_file_lock, timeout=100)
-    with lock_data_file:
-        jobs = joblib.load("jobs.pkl")
-        job = jobs.pop(0)
-        joblib.dump(jobs, "jobs.pkl")
+    jobs = joblib.load("jobs.pkl")
     while len(jobs) > 0:
+        
+        with lock_data_file:
+            job = jobs.pop(0)
+            joblib.dump(jobs, "jobs.pkl")
 
         def resize_image(image_path):
             pil_image = Image.open(image_path)
@@ -99,8 +100,7 @@ def main():
             results_array_bytes = pickle.dumps(results_dict)
             blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=f"{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl")
             blob_client.upload_blob(results_array_bytes)
-        with lock_data_file:
-            jobs = joblib.load("jobs.pkl")
+        jobs = joblib.load("jobs.pkl")
             
 if __name__ == "__main__":
     main()
