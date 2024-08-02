@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
 from tqdm import tqdm
 
-def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, divisions=100, verbose=False):
+def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, saliency_map, image, class_index, bounding_box, object_index, divisions=100, verbose=False):
     import matplotlib as mpl
     mpl.rcParams["savefig.pad_inches"] = 0
     masks = np.empty([saliency_map.shape[0], saliency_map.shape[1], 3])
@@ -19,6 +19,11 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
     thresholds = np.linspace(start=minimum, stop=maximum, num=divisions).tolist()
     thresholds = thresholds[::-1]
     im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    initital_confidence = model.predict([transform(image)])[0].class_scores[object_index][class_index]
+    print(initital_confidence)
     for threshold in tqdm(thresholds):
         masks[:, :, :] = False
         pixels = np.where(saliency_map >= threshold)
@@ -26,9 +31,6 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
         div = len(np.where(masks)[0]) / im_size
         divisions_list_in.append(div)
         min_expl = np.where(masks, image, 0)
-        transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
         img_t = transform(min_expl)
         detection = model.predict([img_t])            
         arrays = []
@@ -42,23 +44,22 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
         else:
             max_confidence = 0
 
-        conf_insertion_list.append(float(max_confidence))
-
+        conf_insertion_list.append(float(max_confidence/initital_confidence))
+        print(max_confidence)
     auc = trapz(conf_insertion_list, divisions_list_in)
     if verbose:
         sns.set_theme(style="whitegrid")
 
         plt.figure(figsize=(10, 6))
-        sns.lineplot(x=divisions_list_in, y=conf_insertion_list, label='Insertion Curve')
+        sns.lineplot(x=divisions_list_in, y=conf_insertion_list)
 
         plt.fill_between(divisions_list_in, conf_insertion_list, alpha=0.3)
 
-        plt.title(f'Insertion Curve - AUC = {auc}', fontsize=16)
-        plt.xlabel('Divisions', fontsize=14)
-        plt.ylabel('Insertion Score', fontsize=14)
+        plt.title(f'Insertion Curve - AUC = {auc:0.4f}', fontsize=32)
+        plt.xlabel('Pixels Inserted', fontsize=28)
+        plt.ylabel('Confidence', fontsize=28)
+        plt.tick_params(axis='both', which='major', labelsize=24)
 
-        plt.legend()
-
-        plt.show()
+        # plt.show()
 
     return auc
