@@ -10,6 +10,7 @@ class IncRexOutput(BaseModel):
     mask: np.ndarray
     label: str
     score: float
+    current_index: int
 
     class Config:
         arbitrary_types_allowed = True

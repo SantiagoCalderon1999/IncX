@@ -15,7 +15,7 @@ class ExpTracker:
         self._initial_saliency_maps = initial_saliency_maps
         self._initial_bounding_boxes = initial_bounding_boxes
         self._tracker = Sort(max_age=500, min_hits=3, iou_threshold=0.3)
-        detections = [[float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score))] for bb, score in zip(initial_prediction.bounding_boxes, initial_prediction.class_scores)]
+        detections = [[float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score)), i] for i, (bb, score) in enumerate(zip(initial_prediction.bounding_boxes, initial_prediction.class_scores))]
         detections = np.array(detections)
         tracked = self._tracker.update(detections)
         self._object_to_ids = defaultdict(int)
@@ -28,13 +28,13 @@ class ExpTracker:
 
     def compute_tracked_explanation(self, image, prediction: od_common.DetectionRecord):
         detections = [
-            [float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score))]
-            for bb, score in zip(prediction.bounding_boxes, prediction.class_scores)
+            [float(bb[0]), float(bb[1]), float(bb[2]), float(bb[3]), float(max(score)), i]
+            for i, (bb, score) in enumerate(zip(prediction.bounding_boxes, prediction.class_scores))
         ]
         results = {}
         if not detections:
             for object_index in self._object_to_ids.keys():
-                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0
+                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0, -1
             return results
 
         detections = np.array(detections)
@@ -43,7 +43,7 @@ class ExpTracker:
         for object_index, id in self._object_to_ids.items():
             matching_result = next((result for result in result_tracker if result[4] == id), np.array([]))
             if len(matching_result) == 0:
-                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0
+                results[object_index] = np.zeros_like(self._initial_saliency_maps[object_index]), (0, 0, 0, 0), 0, -1
                 continue
 
             x1_new, y1_new, x2_new, y2_new = map(int, matching_result[:4])
@@ -76,6 +76,6 @@ class ExpTracker:
                 int(center_changes[1]),
                 (image.shape[0], image.shape[1]),
             )
-            results[object_index] = expanded_saliency_map, (x1_new, y1_new, x2_new, y2_new), matching_result[5]
+            results[object_index] = expanded_saliency_map, (x1_new, y1_new, x2_new, y2_new), matching_result[5], matching_result[6]
 
         return results
