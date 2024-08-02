@@ -45,7 +45,6 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
             max_confidence = 0
 
         conf_insertion_list.append(float(max_confidence/initital_confidence))
-        print(max_confidence)
     auc = trapz(conf_insertion_list, divisions_list_in)
     if verbose:
         sns.set_theme(style="whitegrid")

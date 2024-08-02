@@ -49,7 +49,6 @@ def compute_deletion(model: od_common.GeneralObjectDetectionModelWrapper, salien
                 max_confidence = 0
 
             conf_deletion_list.append(float(max_confidence / initital_confidence))
-            print(max_confidence)
         auc = trapz(conf_deletion_list, divisions_list_in)
         if verbose:
             sns.set_theme(style="whitegrid")
