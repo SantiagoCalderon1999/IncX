@@ -91,7 +91,8 @@ def main():
             joblib.dump(comparison_results, "comparison_results.pkl")
 
         print(f"Finished blob {blob_name}")
-        blob_names_incx = joblib.load("blob_names.pkl")
+        with lock_blobs_name_comparison:
+            blob_names_incx = joblib.load("blob_names.pkl")
         random.shuffle(blob_names_incx)
 
 if __name__ == "__main__":
