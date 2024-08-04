@@ -1,6 +1,6 @@
 # IncX
 
-IncX (**Inc**remental E**x**planations) is an advanced method for generating saliency maps and explanations incrementally in real-time.
+IncX (**Inc**remental E**x**planations) is a method for generating saliency maps and explanations incrementally in real-time.
 
 ![Penguin Gif](https://github.com/SantiagoCalderon1999/IncX/blob/main/blob/penguin.gif?raw=true)
 
@@ -126,4 +126,26 @@ The `Incx` package is available on [PyPI](https://pypi.org/project/incx/). To in
 
 ```shell
 pip install incx
+```
+
+## Usage
+
+The `usage_examples.ipynb` provides examples on how to use the python package. For instance, to explain a video the following code will suffice:
+
+```python
+from incx import incx, yolo, rt_detr, faster_rcnn, d_rise
+
+video_path = 'PATH_TO_YOUR_VIDEO'
+
+# Choose the model you want to use
+
+model = yolo.Yolo()
+# model = rt_detr.RTDETR()
+# model = faster_rcnn.FasterRcnn()
+
+
+explainer = d_rise.DRise(model)
+incX = incx.IncX(model, explainer)
+
+frames = incX.explain_video(video_path)
 ```
