@@ -19,8 +19,8 @@ captum = "^0.7.0"
 dill = "^0.3.8"
 ml-wrappers = "^0.5.5"
 cvzone = "^1.6.1"
-torch = {version = "^2.3.1", source = "torchcu118"}
-torchvision = {version = "^0.18.1", source = "torchcu118"}
+torch = {version = "^2.3.1+cu118", source = "torchcu118"}
+torchvision = {version = "^0.18.1+cu118", source = "torchcu118"}
 seaborn = "^0.13.2"
 python-dotenv = "^1.0.1"
 azure-storage-blob = "^12.21.0"
