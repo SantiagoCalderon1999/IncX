@@ -217,5 +217,6 @@ while blob_names_incx:
     print(f"EPG DRiSE: {epg_drise}")
     print(f"EPG IncX: {epg_incx}")
     print(f"Exp Proportion DRiSE: {exp_proportion_drise}")
-    blob_names_incx = joblib.load("blob_names_metrics.pkl")
+    with lock_blobs_name_comparison:
+        blob_names_incx = joblib.load("blob_names_metrics.pkl")
     random.shuffle(blob_names_incx)
