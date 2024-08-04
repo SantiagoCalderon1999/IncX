@@ -61,7 +61,7 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
    Navigate to `/experiments/d_rise` and execute the `get_saliency_maps.py` script:
 
    ```shell
-   python get_saliency_maps.py
+   poetry run python get_saliency_maps.py
    ```
 
    If you are using a high-performance computing (HPC) system, you can run these tasks in parallel by using `batch_experiment_gpu.sh` and `multiple_experiment_gpu.sh`.
@@ -70,7 +70,7 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
    Move to `/experiments/incx` and run `get_job_names.py` to create a list of jobs:
 
    ```shell
-   python get_job_names.py
+   poetry run  python get_job_names.py
    ```
 
    Then, execute `get_saliency_maps.py` to compute the saliency maps. For parallel execution on HPC systems, use `batch_experiment_gpu.sh` and `multiple_experiment_gpu.sh`.
@@ -79,13 +79,13 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
    After generating the saliency maps from both methods, compare them by running:
 
    ```shell
-   python get_blob_names.py
+   poetry run python get_blob_names.py
    ```
 
    Next, obtain the comparison results with:
 
    ```shell
-   python get_similarity_comparison.py
+   poetry run python get_similarity_comparison.py
    ```
 
    On HPC systems, expedite this process with `batch_similarity_comparison.sh` and `multiple_batch_similarity.sh`.
@@ -94,13 +94,13 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
    To calculate metrics such as insertion, deletion, EPG, and explanation size, start by running:
 
    ```shell
-   python get_blob_names_metrics.py
+   poetry run python get_blob_names_metrics.py
    ```
 
    Then, execute:
 
    ```shell
-   python get_metrics.py
+   poetry run python get_metrics.py
    ```
 
    For HPC systems, speed up this process by using `batch_metrics.sh` and `multiple_batch_metrics.sh`.
@@ -114,6 +114,28 @@ poetry run pytest
 ```
 
 This command will execute all tests in the `tests/` directory, providing feedback on code accuracy and test coverage.
+
+## Folder structure
+
+This is a detailed overview of the project's folder structure to help you navigate the code and resources effectively:
+
+├──incx/
+|    ├── dependencies/ # Modified original code from D-RISE and SORT to handle saliency maps in real-time.
+|    ├── data_models/ # Contains data models used in the project.
+|    ├── explainers/ # Includes code for generating explanations.
+|    ├── models/ # Models utilized by IncX.
+|    └── tracking/ # Code related to tracking functionalities.
+|     
+├──datasets/ # Datasets used, specifically a subset of LaSOT.
+|
+├──experiments/ # Scripts for replicating experiments.
+|    ├── incx/ # Experiment scripts specific to IncX.
+|    ├── d_rise/ # Experiment scripts related to D-RISE.
+|    └── comparison/ # Scripts for comparing different methods.
+|
+└──tests/ # Unit tests for ensuring code quality.
+     └── videos/ # Demo videos showcasing IncX output.  
+
 
 ## Linting and Formatting
 
