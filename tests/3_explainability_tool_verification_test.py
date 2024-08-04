@@ -1,8 +1,8 @@
-from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
-from incrementalexplainer.tracking.incx import IncX
-from incrementalexplainer.models.model_enum import ModelEnum
-from incrementalexplainer.models.model_factory import ModelFactory
-from incrementalexplainer.explainers.d_rise import DRise
+from incx.explainers.explainer_enum import ExplainerEnum
+from incx.tracking.incx import IncX
+from incx.models.model_enum import ModelEnum
+from incx.models.model_factory import ModelFactory
+from incx.explainers.d_rise import DRise
 import numpy as np
 from PIL import Image
 import cv2

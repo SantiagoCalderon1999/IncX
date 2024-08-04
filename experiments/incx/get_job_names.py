@@ -1,5 +1,5 @@
-from incrementalexplainer.models.model_enum import ModelEnum
-from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
+from incx.models.model_enum import ModelEnum
+from incx.explainers.explainer_enum import ExplainerEnum
 import joblib
 
 

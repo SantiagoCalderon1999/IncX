@@ -21,7 +21,7 @@ import torchvision.transforms as T
 import tqdm
 from torch import Tensor
 
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations.common import (
+from incx.dependencies.d_rise.vision_explanation_methods.explanations.common import (
     DetectionRecord,
     GeneralObjectDetectionModelWrapper,
     compute_affinity_matrix,

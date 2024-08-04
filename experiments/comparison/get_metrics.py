@@ -1,11 +1,11 @@
 import pickle
-from incrementalexplainer.models.model_enum import ModelEnum
-from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
-from incrementalexplainer.metrics.saliency_maps.insertion import compute_insertion
-from incrementalexplainer.metrics.saliency_maps.epg import (
+from incx.models.model_enum import ModelEnum
+from incx.metrics.saliency_maps.deletion import compute_deletion
+from incx.metrics.saliency_maps.insertion import compute_insertion
+from incx.metrics.saliency_maps.epg import (
     compute_energy_based_pointing_game,
 )
-from incrementalexplainer.metrics.saliency_maps.exp_proportion import (
+from incx.metrics.saliency_maps.exp_proportion import (
     compute_explanation_proportion,
 )
 from collections import defaultdict
@@ -14,7 +14,7 @@ import random
 import joblib
 from filelock import FileLock
 import numpy as np
-from incrementalexplainer.models.model_factory import ModelFactory
+from incx.models.model_factory import ModelFactory
 from PIL import Image
 
 from azure.storage.blob import BlobServiceClient

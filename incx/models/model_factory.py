@@ -1,8 +1,8 @@
-from incrementalexplainer.models.model_enum import ModelEnum
-from incrementalexplainer.models.base_model import BaseModel
-from incrementalexplainer.models.rt_detr import RtDetr
-from incrementalexplainer.models.yolo import Yolo
-from incrementalexplainer.models.faster_rcnn import FasterRcnn
+from incx.models.model_enum import ModelEnum
+from incx.models.base_model import BaseModel
+from incx.models.rt_detr import RtDetr
+from incx.models.yolo import Yolo
+from incx.models.faster_rcnn import FasterRcnn
 
 
 class ModelFactory:

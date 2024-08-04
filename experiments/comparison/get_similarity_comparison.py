@@ -5,16 +5,16 @@ import pickle
 from dotenv import load_dotenv
 from filelock import FileLock
 from azure.storage.blob import BlobServiceClient
-from incrementalexplainer.metrics.comparison.explanations.dice_coefficient import (
+from incx.metrics.comparison.explanations.dice_coefficient import (
     compute_dice_coefficient,
 )
-from incrementalexplainer.metrics.comparison.explanations.jaccard_index import (
+from incx.metrics.comparison.explanations.jaccard_index import (
     compute_jaccard_index,
 )
-from incrementalexplainer.metrics.comparison.saliency_maps.pearson_coefficient import (
+from incx.metrics.comparison.saliency_maps.pearson_coefficient import (
     compute_pearson_coefficient,
 )
-from incrementalexplainer.metrics.comparison.saliency_maps.structural_similarity_index import (
+from incx.metrics.comparison.saliency_maps.structural_similarity_index import (
     compute_structural_similarity_index,
 )
 from IPython.display import clear_output

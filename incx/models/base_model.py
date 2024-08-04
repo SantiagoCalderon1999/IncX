@@ -1,4 +1,4 @@
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+from incx.dependencies.d_rise.vision_explanation_methods.explanations import (
     common as od_common,
 )
 import torch

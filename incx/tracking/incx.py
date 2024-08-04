@@ -1,7 +1,7 @@
-from incrementalexplainer.models.base_model import BaseModel
-from incrementalexplainer.explainers.base_explainer import BaseExplainer
-from incrementalexplainer.tracking.exp_tracker import ExpTracker
-from incrementalexplainer.utils.explanations import (
+from incx.models.base_model import BaseModel
+from incx.explainers.base_explainer import BaseExplainer
+from incx.tracking.exp_tracker import ExpTracker
+from incx.utils.explanations import (
     compute_initial_sufficient_explanation,
 )
 from torchvision import transforms
@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 import cv2
 from tqdm import tqdm
 from typing import List
-from incrementalexplainer.data_models.increx_output import IncRexOutput
+from incx.data_models.increx_output import IncRexOutput
 from collections import defaultdict
 from typing import Dict
 import cvzone
-from incrementalexplainer.models.labels import coco_labels
+from incx.models.labels import coco_labels
 
 
 class IncX:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from incrementalexplainer.models.base_model import BaseModel
+from incx.models.base_model import BaseModel
 
 
 class BaseExplainer(ABC):

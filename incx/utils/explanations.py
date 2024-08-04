@@ -1,6 +1,6 @@
 import numpy as np
-from incrementalexplainer.models.base_model import BaseModel
-from incrementalexplainer.utils.common import calculate_intersection_over_union
+from incx.models.base_model import BaseModel
+from incx.utils.common import calculate_intersection_over_union
 import torchvision.transforms as transforms
 
 

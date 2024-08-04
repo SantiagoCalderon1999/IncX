@@ -1,4 +1,4 @@
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+from incx.dependencies.d_rise.vision_explanation_methods.explanations import (
     common as od_common,
 )
 import torch
@@ -7,7 +7,7 @@ from torchvision.models.detection import (
     FasterRCNN_ResNet50_FPN_Weights,
     fasterrcnn_resnet50_fpn,
 )
-from incrementalexplainer.models.base_model import BaseModel
+from incx.models.base_model import BaseModel
 
 
 class FasterRcnn(BaseModel):

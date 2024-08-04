@@ -1,8 +1,8 @@
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods import (
+from incx.dependencies.d_rise.vision_explanation_methods import (
     DRISE_runner as dr,
 )
-from incrementalexplainer.models.base_model import BaseModel
-from incrementalexplainer.explainers.base_explainer import BaseExplainer
+from incx.models.base_model import BaseModel
+from incx.explainers.base_explainer import BaseExplainer
 import numpy as np
 import torchvision.transforms as transforms
 

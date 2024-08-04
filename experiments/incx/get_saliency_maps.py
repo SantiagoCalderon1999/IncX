@@ -2,15 +2,15 @@ from filelock import FileLock
 import numpy as np
 import time
 from PIL import Image
-from incrementalexplainer.tracking.incx import IncX
-from incrementalexplainer.models.model_factory import ModelFactory
-from incrementalexplainer.explainers.d_rise import DRise
-from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
-from incrementalexplainer.metrics.saliency_maps.insertion import compute_insertion
-from incrementalexplainer.metrics.saliency_maps.epg import (
+from incx.tracking.incx import IncX
+from incx.models.model_factory import ModelFactory
+from incx.explainers.d_rise import DRise
+from incx.metrics.saliency_maps.deletion import compute_deletion
+from incx.metrics.saliency_maps.insertion import compute_insertion
+from incx.metrics.saliency_maps.epg import (
     compute_energy_based_pointing_game,
 )
-from incrementalexplainer.metrics.saliency_maps.exp_proportion import (
+from incx.metrics.saliency_maps.exp_proportion import (
     compute_explanation_proportion,
 )
 from torchvision import transforms

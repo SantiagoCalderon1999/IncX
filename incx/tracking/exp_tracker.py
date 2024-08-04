@@ -1,9 +1,9 @@
-from incrementalexplainer.dependencies.sort.sort import *
+from incx.dependencies.sort.sort import *
 import numpy as np
 
-from incrementalexplainer.transformations.image_scaling import scale_image
-from incrementalexplainer.transformations.image_moving import move_image
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+from incx.transformations.image_scaling import scale_image
+from incx.transformations.image_moving import move_image
+from incx.dependencies.d_rise.vision_explanation_methods.explanations import (
     common as od_common,
 )
 from collections import defaultdict

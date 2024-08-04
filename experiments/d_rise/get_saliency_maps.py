@@ -1,17 +1,17 @@
 from datasets.dataset_enum import DatasetEnum
 import os
 import random
-from incrementalexplainer.models.model_enum import ModelEnum
-from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
+from incx.models.model_enum import ModelEnum
+from incx.explainers.explainer_enum import ExplainerEnum
 import pickle
 import cv2
-from incrementalexplainer.models.model_factory import ModelFactory
+from incx.models.model_factory import ModelFactory
 
-from incrementalexplainer.explainers.explainer_factory import ExplainerFactory
+from incx.explainers.explainer_factory import ExplainerFactory
 import torchvision.transforms as transforms
 import numpy as np
 
-from incrementalexplainer.utils.explanations import (
+from incx.utils.explanations import (
     compute_initial_sufficient_explanation,
 )
 import time

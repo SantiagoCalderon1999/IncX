@@ -3,7 +3,7 @@ import random
 import joblib
 from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
-from incrementalexplainer.models.model_enum import ModelEnum
+from incx.models.model_enum import ModelEnum
 
 
 def main():

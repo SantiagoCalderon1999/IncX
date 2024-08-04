@@ -19,7 +19,7 @@ from torchvision import transforms as T
 from torchvision.models import detection
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+from incx.dependencies.d_rise.vision_explanation_methods.explanations import (
     drise,
 )
 

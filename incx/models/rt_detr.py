@@ -1,14 +1,14 @@
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+from incx.dependencies.d_rise.vision_explanation_methods.explanations import (
     common as od_common,
 )
 import numpy as np
 import torch
-from incrementalexplainer.models.base_model import BaseModel
-from ultralytics import YOLO
+from incx.models.base_model import BaseModel
+from ultralytics import RTDETR
 
 
-class Yolo(BaseModel):
-    """Wraps a PytorchFasterRCNN model with a predict API function for object detection.
+class RtDetr(BaseModel):
+    """Wraps a SwinTransformer model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have
     the same output and input class.
@@ -17,7 +17,7 @@ class Yolo(BaseModel):
     """
 
     def __init__(self):
-        self._model = YOLO("yolov10n.pt")
+        self._model = RTDETR("rtdetr-l.pt")
         self._number_of_classes = 80
 
     def predict(self, x: torch.tensor):
@@ -27,7 +27,7 @@ class Yolo(BaseModel):
             input = (
                 np.ascontiguousarray(np.transpose(x_el.cpu().numpy(), (1, 2, 0))) * 255
             ).astype("uint8")
-            raw_detection = self._model.predict(input, verbose=False)
+            raw_detection = self._model(input, verbose=False)
             raw_detections.append(raw_detection)
 
         detections = []
