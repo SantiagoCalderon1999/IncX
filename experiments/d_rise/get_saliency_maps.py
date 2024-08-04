@@ -10,10 +10,7 @@ from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.explainer_factory import ExplainerFactory
 import torchvision.transforms as transforms
 import numpy as np
-from incrementalexplainer.metrics.saliency_maps.deletion import compute_deletion
-from incrementalexplainer.metrics.saliency_maps.insertion import compute_insertion
-from incrementalexplainer.metrics.saliency_maps.epg import compute_energy_based_pointing_game
-from incrementalexplainer.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
+
 from incrementalexplainer.utils.explanations import compute_initial_sufficient_explanation
 import time
 import portalocker
@@ -62,7 +59,7 @@ if __name__ == "__main__":
     finished_jobs = []
     for blob in blob_list:
         array = blob.name.split('/')
-        finished_jobs.append((array[0], array[1], "./datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
+        finished_jobs.append((array[0], array[1], "../../datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
     print(f"Total jobs: {len(job_array)}")
     print(f"Finished jobs: {len(finished_jobs)}")
     print(f"Finished jobs: {finished_jobs}")
@@ -75,7 +72,7 @@ if __name__ == "__main__":
         blob_list = container_client.list_blobs()
         for blob in blob_list:
             array = blob.name.split('/')
-            finished_jobs.append((array[0], array[1], "./datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
+            finished_jobs.append((array[0], array[1], "../../datasets/" + '/'.join(array[2:]).split('.')[0] + '.jpg'))
 
         if job_key in set(finished_jobs):
             print(f"Skipping image: {image_location}, model: {model_name}, explainer: {explainer_name}")
@@ -112,19 +109,10 @@ if __name__ == "__main__":
             class_index = np.argmax(results[0].class_scores[object_index].detach())
             bounding_box = np.array(results[0].bounding_boxes[object_index].cpu().detach())
             saliency_map = saliency_maps[object_index]
-            deletion = compute_deletion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
-            insertion = compute_insertion(model, saliency_map, img, class_index, bounding_box, divisions = divisions)
-            epg = compute_energy_based_pointing_game(saliency_map, bounding_box)
-            
-            exp_prop = compute_explanation_proportion(mask)
             print(f"Finished metrics: {image_location} for index {object_index} / {len(results[0].class_scores) - 1}")
 
             results_dict = {
                 "metrics": {
-                    "deletion": deletion,
-                    "insertion": insertion,
-                    "epg": epg,
-                    "exp_proportion": exp_prop,
                     "explanation_time": explanation_time
                 },
                 "detection": {
@@ -134,7 +122,6 @@ if __name__ == "__main__":
                 },
                 "maps": {
                     "saliency_map": saliency_map,
-                    "sufficient_explanation": suf_expl,
                     "mask": mask
                 }
             }

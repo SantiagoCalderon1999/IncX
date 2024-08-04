@@ -53,7 +53,7 @@ def main():
         explainer = DRise(model, 1000)
         incRex = IncRex(model, explainer, object_indices=[0])
         while (not valid):
-            image_locations = [f'datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
+            image_locations = [f'../../datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
 
             images = [resize_image(image_location) for image_location in image_locations]
             transform = transforms.Compose([
