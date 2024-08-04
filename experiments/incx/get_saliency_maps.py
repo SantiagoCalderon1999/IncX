@@ -53,7 +53,7 @@ def main():
         explainer = DRise(model, 1000)
         incRex = IncRex(model, explainer, object_indices=[0])
         while (not valid):
-            image_locations = [f'../../datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
+            image_locations = [f'datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
 
             images = [resize_image(image_location) for image_location in image_locations]
             transform = transforms.Compose([
@@ -77,17 +77,9 @@ def main():
             result = results[0]
             if result.current_index == -1:
                 continue
-            insertion = compute_insertion(model, result.saliency_map, image, class_index, result.bounding_box, object_index=result.current_index, divisions=100)
-            deletion = compute_deletion(model, result.saliency_map, image, class_index, result.bounding_box, object_index=result.current_index, divisions=100)
-            epg = compute_energy_based_pointing_game(result.saliency_map, result.bounding_box)
-            exp_proportion = compute_explanation_proportion(result.mask)
             
             results_dict = {
                 "metrics": {
-                    "deletion": deletion,
-                    "insertion": insertion,
-                    "epg": epg,
-                    "exp_proportion": exp_proportion,
                     "explanation_time": explanation_time
                 },
                 "detection": {
