@@ -5,22 +5,24 @@ from io import BytesIO
 from typing import Optional, Tuple
 
 import matplotlib
-import matplotlib.pyplot as plt
 import numpy
 import pandas as pd
 import requests
 import torch
 import torchvision
-from captum.attr import visualization as viz
-from ml_wrappers.model.image_model_wrapper import (MLflowDRiseWrapper,
-                                                   PytorchDRiseWrapper)
+from ml_wrappers.model.image_model_wrapper import (
+    MLflowDRiseWrapper,
+    PytorchDRiseWrapper,
+)
 from PIL import Image
 from torchvision import transforms as T
 from torchvision.models import detection
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import drise
-import numpy as np
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+    drise,
+)
+
 try:
     from matplotlib.axes._subplots import AxesSubplot
 except ImportError:
@@ -31,8 +33,7 @@ except ImportError:
 IMAGE_TYPE = ".jpg"
 
 
-def plot_img_bbox(ax: AxesSubplot, box: numpy.ndarray,
-                  label: str, color: str):
+def plot_img_bbox(ax: AxesSubplot, box: numpy.ndarray, label: str, color: str):
     """Plot predicted bounding box and label on the D-RISE saliency map.
 
     :param ax: Axis on which the d-rise saliency map was plotted
@@ -47,19 +48,21 @@ def plot_img_bbox(ax: AxesSubplot, box: numpy.ndarray,
         d-rise saliency map
     :rtype: Matplotlib AxesSubplot
     """
-    x, y, width, height = box[0], box[1], box[2]-box[0], box[3]-box[1]
-    rect = matplotlib.patches.Rectangle((x, y),
-                                        width,
-                                        height,
-                                        linewidth=2,
-                                        edgecolor=color,
-                                        facecolor='none',
-                                        label=label)
+    x, y, width, height = box[0], box[1], box[2] - box[0], box[3] - box[1]
+    rect = matplotlib.patches.Rectangle(
+        (x, y),
+        width,
+        height,
+        linewidth=2,
+        edgecolor=color,
+        facecolor="none",
+        label=label,
+    )
     ax.add_patch(rect)
     frame = ax.get_position()
     ax.set_position([frame.x0, frame.y0, frame.width * 0.8, frame.height])
 
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
     return ax
 
 
@@ -71,8 +74,7 @@ def get_instance_segmentation_model(num_classes: int):
     :return: Faster R-CNN PyTorch model
     :rtype: PyTorch model
     """
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-        pretrained=True)
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     # Replace the pre-trained head with a new one
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
@@ -81,15 +83,15 @@ def get_instance_segmentation_model(num_classes: int):
 
 
 def get_drise_saliency_map_from_path(
-        imagelocation: str,
-        model: Optional[object],
-        numclasses: int,
-        savename: str,
-        nummasks: int = 25,
-        maskres: Tuple[int, int] = (4, 4),
-        maskpadding: Optional[int] = None,
-        devicechoice: Optional[str] = None,
-        max_figures: Optional[int] = None
+    imagelocation: str,
+    model: Optional[object],
+    numclasses: int,
+    savename: str,
+    nummasks: int = 25,
+    maskres: Tuple[int, int] = (4, 4),
+    maskpadding: Optional[int] = None,
+    devicechoice: Optional[str] = None,
+    max_figures: Optional[int] = None,
 ):
     """Run D-RISE on image and visualize the saliency maps.
 
@@ -115,40 +117,44 @@ def get_drise_saliency_map_from_path(
     :rtype: Tuple of - list of Matplotlib figures, str, list
     """
     if not devicechoice:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
         device = devicechoice
 
     if not model:
         unwrapped_model = detection.fasterrcnn_resnet50_fpn(
-            pretrained=True, map_location=device)
+            pretrained=True, map_location=device
+        )
         unwrapped_model.to(device)
         model = PytorchDRiseWrapper(unwrapped_model, numclasses)
 
     image_open_pointer = imagelocation
-    if (imagelocation.startswith("http://")
-       or imagelocation.startswith("https://")):
+    if imagelocation.startswith("http://") or imagelocation.startswith("https://"):
         response = requests.get(imagelocation)
         image_open_pointer = BytesIO(response.content)
 
-    image = Image.open(image_open_pointer).convert('RGB')
+    image = Image.open(image_open_pointer).convert("RGB")
     x, y = image.size
     imgio = BytesIO()
-    image.save(imgio, format='PNG')
-    img_str = base64.b64encode(imgio.getvalue()).decode('utf8')
+    image.save(imgio, format="PNG")
+    img_str = base64.b64encode(imgio.getvalue()).decode("utf8")
     img_input = pd.DataFrame(
         data=[[img_str, (y, x)]],
-        columns=['image', 'image_size'],
+        columns=["image", "image_size"],
     )
-    return get_drise_saliency_map(img_input, model, nummasks, maskres, maskpadding, device)
+    return get_drise_saliency_map(
+        img_input, model, nummasks, maskres, maskpadding, device
+    )
+
 
 def get_drise_saliency_map(
-        image, 
-        model: object, 
-        nummasks: int = 25, 
-        maskres: Tuple[int, int] = (4, 4), 
-        maskpadding: Optional[int] = None, 
-        device: Optional[str] = None):
+    image,
+    model: object,
+    nummasks: int = 25,
+    maskres: Tuple[int, int] = (4, 4),
+    maskpadding: Optional[int] = None,
+    device: Optional[str] = None,
+):
     """Run D-RISE on image and visualize the saliency maps.
 
     :param image: Array containing the image
@@ -169,8 +175,6 @@ def get_drise_saliency_map(
     :rtype: Tuple of - list of Matplotlib figures, str, list
     """
     if isinstance(model, MLflowDRiseWrapper):
-
-
         detections = model.predict(img_input)
         saliency_scores = drise.DRISE_saliency_for_mlflow(
             model=model,
@@ -185,7 +189,7 @@ def get_drise_saliency_map(
             # This is the resolution of the random masks.
             # High resolutions will give finer masks, but more need to be run.
             mask_res=maskres,
-            verbose=True  # Turns progress bar on/off.
+            verbose=True,  # Turns progress bar on/off.
         )
     else:
         img_input = image
@@ -209,15 +213,16 @@ def get_drise_saliency_map(
             # This is the resolution of the random masks.
             # High resolutions will give finer masks, but more need to be run.
             mask_res=maskres,
-            verbose=True  # Turns progress bar on/off.
+            verbose=True,  # Turns progress bar on/off.
         )
 
     img_index = 0
 
     # Filter out saliency scores containing nan values
-    saliency_scores = [saliency_scores[img_index][i]
-                       for i in range(len(saliency_scores[img_index]))
-                       if not torch.isnan(
-                       saliency_scores[img_index][i]['detection']).any()]
+    saliency_scores = [
+        saliency_scores[img_index][i]
+        for i in range(len(saliency_scores[img_index]))
+        if not torch.isnan(saliency_scores[img_index][i]["detection"]).any()
+    ]
 
     return saliency_scores

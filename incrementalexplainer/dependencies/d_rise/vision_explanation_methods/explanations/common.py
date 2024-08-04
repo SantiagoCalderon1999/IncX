@@ -32,10 +32,10 @@ class DetectionRecord:
     """
 
     def __init__(
-            self,
-            bounding_boxes: torch.Tensor,
-            objectness_scores: torch.Tensor,
-            class_scores: torch.Tensor
+        self,
+        bounding_boxes: torch.Tensor,
+        objectness_scores: torch.Tensor,
+        class_scores: torch.Tensor,
     ):
         """Initialize the DetectionRecord."""
         self.bounding_boxes = bounding_boxes
@@ -65,7 +65,7 @@ class DetectionRecord:
         return DetectionRecord(
             bounding_boxes=self.bounding_boxes[indicies, :],
             objectness_scores=self.objectness_scores[indicies],
-            class_scores=self.class_scores[indicies, :]
+            class_scores=self.class_scores[indicies, :],
         )
 
 
@@ -86,10 +86,7 @@ class GeneralObjectDetectionModelWrapper(abc.ABC):
         raise NotImplementedError
 
 
-def compute_intersections(
-        boxes_a: torch.Tensor,
-        boxes_b: torch.Tensor
-) -> torch.Tensor:
+def compute_intersections(boxes_a: torch.Tensor, boxes_b: torch.Tensor) -> torch.Tensor:
     """Compute intersection between two lists of boxes.
 
     :param boxes_a: Tensor of M boxes in coordinates
@@ -106,16 +103,18 @@ def compute_intersections(
     number_of_boxes_b = boxes_b.shape[0]
 
     unpacked_boxes_a = boxes_a.unsqueeze(1).repeat(
-        1, number_of_boxes_b, 1)  # Shape [N, M, 4]
+        1, number_of_boxes_b, 1
+    )  # Shape [N, M, 4]
     unpacked_boxes_b = boxes_b.unsqueeze(0).repeat(
-        number_of_boxes_a, 1, 1)  # Shape [N, M, 4]
+        number_of_boxes_a, 1, 1
+    )  # Shape [N, M, 4]
 
     left = torch.max(unpacked_boxes_a[:, :, 0], unpacked_boxes_b[:, :, 0])
     right = torch.min(unpacked_boxes_a[:, :, 2], unpacked_boxes_b[:, :, 2])
     top = torch.max(unpacked_boxes_a[:, :, 1], unpacked_boxes_b[:, :, 1])
     bottom = torch.min(unpacked_boxes_a[:, :, 3], unpacked_boxes_b[:, :, 3])
 
-    repeated_0 = torch.tensor(0.).repeat(left.shape[0], left.shape[1])
+    repeated_0 = torch.tensor(0.0).repeat(left.shape[0], left.shape[1])
 
     # Negative widths/heights treated as 0 so area is 0
     widths = torch.max(repeated_0, right - left)
@@ -136,10 +135,7 @@ def compute_areas(boxes: torch.Tensor) -> torch.Tensor:
     return (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
 
 
-def compute_unions(
-        boxes_a: torch.Tensor,
-        boxes_b: torch.Tensor
-) -> torch.Tensor:
+def compute_unions(boxes_a: torch.Tensor, boxes_b: torch.Tensor) -> torch.Tensor:
     """Compute area of unions between two lists of boxes.
 
     :param boxes_a: Tensor of M boxes in coordinates
@@ -155,9 +151,11 @@ def compute_unions(
     number_of_boxes_a = boxes_a.shape[0]
     number_of_boxes_b = boxes_b.shape[0]
 
-    return (compute_areas(boxes_a).unsqueeze(1).repeat(1, number_of_boxes_b) +
-            compute_areas(boxes_b).unsqueeze(0).repeat(number_of_boxes_a, 1) -
-            compute_intersections(boxes_a, boxes_b))
+    return (
+        compute_areas(boxes_a).unsqueeze(1).repeat(1, number_of_boxes_b)
+        + compute_areas(boxes_b).unsqueeze(0).repeat(number_of_boxes_a, 1)
+        - compute_intersections(boxes_a, boxes_b)
+    )
 
 
 def compute_IoUs(boxes_a: torch.Tensor, boxes_b: torch.Tensor) -> torch.Tensor:
@@ -173,14 +171,13 @@ def compute_IoUs(boxes_a: torch.Tensor, boxes_b: torch.Tensor) -> torch.Tensor:
         IoU between boxes_a[m] and boxes_b[n]
     :rtype: Tensor
     """
-    return (compute_intersections(boxes_a, boxes_b) /
-            compute_unions(boxes_a, boxes_b))
+    return compute_intersections(boxes_a, boxes_b) / compute_unions(boxes_a, boxes_b)
 
 
 def compute_affinity_matrix(
-        detections_a: DetectionRecord,
-        detections_b: DetectionRecord,
-        exclude_class: Optional[bool] = False,
+    detections_a: DetectionRecord,
+    detections_b: DetectionRecord,
+    exclude_class: Optional[bool] = False,
 ) -> torch.Tensor:
     """Compute the affinity scores between two sets of object detections.
 
@@ -201,30 +198,32 @@ def compute_affinity_matrix(
     detections_a.to("cpu")
     detections_b.to("cpu")
 
-    iou_scores = compute_IoUs(detections_a.bounding_boxes,
-                              detections_b.bounding_boxes)
-    objectness_scores = (detections_a.objectness_scores.unsqueeze(1) @
-                         detections_b.objectness_scores.unsqueeze(0))
+    iou_scores = compute_IoUs(detections_a.bounding_boxes, detections_b.bounding_boxes)
+    objectness_scores = detections_a.objectness_scores.unsqueeze(
+        1
+    ) @ detections_b.objectness_scores.unsqueeze(0)
 
     if exclude_class:
         class_affinities, class_normalization = 1.0, 1.0
     else:
         class_affinities = detections_a.class_scores @ torch.transpose(
-            detections_b.class_scores, 0, 1)
-        class_normalization = (
-            torch.norm(detections_a.class_scores, p=2, dim=1).unsqueeze(1) @
-            torch.norm(detections_b.class_scores, p=2, dim=1).unsqueeze(0))
+            detections_b.class_scores, 0, 1
+        )
+        class_normalization = torch.norm(
+            detections_a.class_scores, p=2, dim=1
+        ).unsqueeze(1) @ torch.norm(detections_b.class_scores, p=2, dim=1).unsqueeze(0)
 
-    score_matrix = iou_scores * objectness_scores * (
-        class_affinities / class_normalization)
+    score_matrix = (
+        iou_scores * objectness_scores * (class_affinities / class_normalization)
+    )
 
     return score_matrix
 
 
 def expand_class_scores(
-        scores: torch.Tensor,
-        labels: torch.Tensor,
-        number_of_classes: int,
+    scores: torch.Tensor,
+    labels: torch.Tensor,
+    number_of_classes: int,
 ) -> torch.Tensor:
     """Extrapolate a full set of class scores.
 
@@ -250,8 +249,7 @@ def expand_class_scores(
     expanded_scores = torch.ones(number_of_detections, number_of_classes + 1)
 
     for i, (score, label) in enumerate(zip(scores, labels)):
-
-        residual = (1. - score.item()) / (number_of_classes)
+        residual = (1.0 - score.item()) / (number_of_classes)
         expanded_scores[i, :] *= residual
         expanded_scores[i, int(label.item())] = score
 

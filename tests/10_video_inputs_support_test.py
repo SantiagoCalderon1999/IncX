@@ -7,28 +7,33 @@ import cv2
 from PIL import Image
 import os
 
+
 def test_consecutive_image_support():
-    
     # Given
-    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 5)]
-    images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 'mp4v' for .mp4 files
-    video = cv2.VideoWriter('test_video.mp4', fourcc, 30, (640, 480))  # Fixed size to match resized images
-    
+    image_locations = [f"datasets/LASOT/1/{str(i).zfill(8)}.jpg" for i in range(1, 5)]
+    images = [
+        resize_image(image_location, (640, 480)) for image_location in image_locations
+    ]
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # 'mp4v' for .mp4 files
+    video = cv2.VideoWriter(
+        "test_video.mp4", fourcc, 30, (640, 480)
+    )  # Fixed size to match resized images
+
     for image in images:
         video.write(image)
     video.release()
-    
+
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
     incRex = IncX(model, explainer)
 
     # When
-    result = incRex.explain_video('test_video.mp4')
-    
+    result = incRex.explain_video("test_video.mp4")
+
     # Then
     assert result is not None
-    os.remove('test_video.mp4')
+    os.remove("test_video.mp4")
+
 
 def resize_image(image_path, target_size):
     pil_image = Image.open(image_path)

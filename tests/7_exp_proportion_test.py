@@ -1,17 +1,21 @@
-from incrementalexplainer.tracking.incx  import IncX
+from incrementalexplainer.tracking.incx import IncX
 from incrementalexplainer.models.model_enum import ModelEnum
 from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.d_rise import DRise
 import numpy as np
 from PIL import Image
 import cv2
-from incrementalexplainer.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
+from incrementalexplainer.metrics.saliency_maps.exp_proportion import (
+    compute_explanation_proportion,
+)
+
 
 def test_exp_proportion_value():
-    
     # Given
-    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
-    images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
+    image_locations = [f"datasets/LASOT/1/{str(i).zfill(8)}.jpg" for i in range(1, 10)]
+    images = [
+        resize_image(image_location, (640, 480)) for image_location in image_locations
+    ]
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 500)
     incRex = IncX(model, explainer)
@@ -19,15 +23,16 @@ def test_exp_proportion_value():
     # When
     average_epg = 0
     for i, image in enumerate(images):
-        results,_ = incRex.explain_frame(image)
+        results, _ = incRex.explain_frame(image)
         result = results[0]
         epg = compute_explanation_proportion(result.mask)
         if i != 0:
             average_epg += epg
-    average_epg = average_epg / (len(images)-1)
-    
+    average_epg = average_epg / (len(images) - 1)
+
     # Then
     assert average_epg < 0.1
+
 
 def resize_image(image_path, target_size):
     pil_image = Image.open(image_path)

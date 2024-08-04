@@ -6,7 +6,6 @@ from incrementalexplainer.models.faster_rcnn import FasterRcnn
 
 
 class ModelFactory:
-    
     def get_model(self, model: ModelEnum) -> BaseModel:
         if model == ModelEnum.RT_DETR:
             return RtDetr()

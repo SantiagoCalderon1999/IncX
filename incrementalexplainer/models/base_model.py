@@ -1,10 +1,12 @@
-from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import common as od_common
+from incrementalexplainer.dependencies.d_rise.vision_explanation_methods.explanations import (
+    common as od_common,
+)
 import torch
 from typing import List
 from abc import ABC, abstractmethod
 
+
 class BaseModel(ABC):
-    
     @abstractmethod
     def predict(self, x: torch.Tensor) -> List[od_common.DetectionRecord]:
         """Take a tensor and return a list of detection records.

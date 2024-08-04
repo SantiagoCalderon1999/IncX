@@ -26,9 +26,7 @@ NUM_MASKS = 100
 class PointingGame:
     """A class for the high energy pointing game."""
 
-    def __init__(self,
-                 model: Any,
-                 device=Device.AUTO.value) -> None:
+    def __init__(self, model: Any, device=Device.AUTO.value) -> None:
         """Initialize the PointingGame.
 
         Note: gt = ground truth.
@@ -42,11 +40,13 @@ class PointingGame:
         self._device = torch.device(_get_device(device))
         self._model = model
 
-    def pointing_game(self,
-                      imagelocation: str,
-                      index: int,
-                      threshold: float = .8,
-                      num_masks: int = NUM_MASKS):
+    def pointing_game(
+        self,
+        imagelocation: str,
+        index: int,
+        threshold: float = 0.8,
+        num_masks: int = NUM_MASKS,
+    ):
         """
         Calculate the saliency scores for a given object detection prediction.
 
@@ -73,49 +73,50 @@ class PointingGame:
         :rtype: List[Tensor]
         """
         if not 0 <= threshold <= 1:
-            raise ValueError('Threshold parameter must be a float \
-                             between 0 and 1.')
+            raise ValueError(
+                "Threshold parameter must be a float \
+                             between 0 and 1."
+            )
         if num_masks < 0:
-            raise ValueError('Number of masks parameter must be a \
-                             positive int.')
+            raise ValueError(
+                "Number of masks parameter must be a \
+                             positive int."
+            )
         image_open_pointer = imagelocation
-        if (imagelocation.startswith("http://")
-           or imagelocation.startswith("https://")):
+        if imagelocation.startswith("http://") or imagelocation.startswith("https://"):
             response = requests.get(imagelocation)
             image_open_pointer = BytesIO(response.content)
 
-        test_image = Image.open(image_open_pointer).convert('RGB')
+        test_image = Image.open(image_open_pointer).convert("RGB")
 
-        img_input = (T.ToTensor()(test_image)
-                     .unsqueeze(0).to(self._device))
+        img_input = T.ToTensor()(test_image).unsqueeze(0).to(self._device)
 
         detections = self._model.predict(img_input)
 
         saliency_scores = drise.DRISE_saliency(
-                model=self._model,
-                # Repeated the tensor to test batching
-                image_tensor=img_input,
-                target_detections=detections,
-                # This is how many masks to run -
-                # more is slower but gives higher quality mask.
-                number_of_masks=num_masks,
-                mask_padding=None,
-                device=self._device,
-                # This is the resolution of the random masks.
-                # High resolutions will give finer masks, but more need to be
-                # run.
-                mask_res=(2, 2),
-                verbose=True  # Turns progress bar on/off.
-            )
+            model=self._model,
+            # Repeated the tensor to test batching
+            image_tensor=img_input,
+            target_detections=detections,
+            # This is how many masks to run -
+            # more is slower but gives higher quality mask.
+            number_of_masks=num_masks,
+            mask_padding=None,
+            device=self._device,
+            # This is the resolution of the random masks.
+            # High resolutions will give finer masks, but more need to be
+            # run.
+            mask_res=(2, 2),
+            verbose=True,  # Turns progress bar on/off.
+        )
 
-        temp = saliency_scores[0][index]['detection']
+        temp = saliency_scores[0][index]["detection"]
         temp[temp < threshold] = -1
         return temp
 
-    def visualize_highly_salient_pixels(self,
-                                        img,
-                                        saliency_scores,
-                                        gt_bbox: List = None):
+    def visualize_highly_salient_pixels(
+        self, img, saliency_scores, gt_bbox: List = None
+    ):
         """
         Create figure of highly salient pixels.
 
@@ -134,9 +135,7 @@ class PointingGame:
         fig, ax = pl.subplots(1, 1, figsize=(10, 10))
 
         viz.visualize_image_attr(
-            np.transpose(
-                saliency_scores.detach().cpu().numpy(),
-                (1, 2, 0)),
+            np.transpose(saliency_scores.detach().cpu().numpy(), (1, 2, 0)),
             np.transpose(T.ToTensor()(img).detach().cpu().numpy(), (1, 2, 0)),
             method="blended_heat_map",
             sign="positive",
@@ -144,20 +143,21 @@ class PointingGame:
             cmap=pl.cm.get_cmap("Blues"),
             title="Pointing Game Visualization",
             plt_fig_axis=(fig, ax),
-            use_pyplot=False
+            use_pyplot=False,
         )
         if gt_bbox is not None:
             x, y, width, height = gt_bbox
-            rectangle = patches.Rectangle((x, y), width, height, linewidth=1,
-                                          edgecolor='r', facecolor='none')
+            rectangle = patches.Rectangle(
+                (x, y), width, height, linewidth=1, edgecolor="r", facecolor="none"
+            )
             # Add the rectangle patch to the axes
             ax.add_patch(rectangle)
 
         return fig
 
-    def calculate_gt_salient_pixel_overlap(self,
-                                           saliency_scores: List[Tensor],
-                                           gt_bbox: List):
+    def calculate_gt_salient_pixel_overlap(
+        self, saliency_scores: List[Tensor], gt_bbox: List
+    ):
         """
         Calculate percent of overlap between salient pixels and gt bbox.
 
@@ -176,7 +176,7 @@ class PointingGame:
         gt_bbox = torch.tensor(gt_bbox)
 
         gt_mask = torch.zeros_like(saliency_scores, dtype=torch.bool)
-        gt_mask[gt_bbox[1]:gt_bbox[3]+1, gt_bbox[0]:gt_bbox[2]+1] = True
+        gt_mask[gt_bbox[1] : gt_bbox[3] + 1, gt_bbox[0] : gt_bbox[2] + 1] = True
 
         positive_mask = torch.gt(saliency_scores, 0)
         positive_gt_mask = torch.logical_and(positive_mask, gt_mask)

@@ -1,29 +1,29 @@
-from incrementalexplainer.tracking.incx  import IncX
+from incrementalexplainer.tracking.incx import IncX
 from incrementalexplainer.models.model_enum import ModelEnum
 from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.d_rise import DRise
 import numpy as np
-import time
 from PIL import Image
 import cv2
 
+
 def test_consecutive_image_support():
-    
     # Given
-    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 5)]
-    images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
+    image_locations = [f"datasets/LASOT/1/{str(i).zfill(8)}.jpg" for i in range(1, 5)]
+    images = [
+        resize_image(image_location, (640, 480)) for image_location in image_locations
+    ]
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
     incRex = IncX(model, explainer)
 
     # When
     result = incRex.explain_frame_sequence(images)
-    
+
     # Then
     assert result is not None
 
-    
-    
+
 def resize_image(image_path, target_size):
     pil_image = Image.open(image_path)
     image_array = np.array(pil_image)

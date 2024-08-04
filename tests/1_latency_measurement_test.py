@@ -1,4 +1,4 @@
-from incrementalexplainer.tracking.incx  import IncX
+from incrementalexplainer.tracking.incx import IncX
 from incrementalexplainer.models.model_enum import ModelEnum
 from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.d_rise import DRise
@@ -7,11 +7,13 @@ import time
 from PIL import Image
 import cv2
 
+
 def test_latency_measurement():
-    
     # Given
-    image_locations = [f'datasets/LASOT/1/{str(i).zfill(8)}.jpg' for i in range(1, 10)]
-    images = [resize_image(image_location, (640, 480)) for image_location in image_locations]
+    image_locations = [f"datasets/LASOT/1/{str(i).zfill(8)}.jpg" for i in range(1, 10)]
+    images = [
+        resize_image(image_location, (640, 480)) for image_location in image_locations
+    ]
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
     incRex = IncX(model, explainer)
@@ -22,17 +24,16 @@ def test_latency_measurement():
         start = time.time()
         incRex.explain_frame(image)
         end = time.time()
-        
+
         if i != 0:
             average_time += end - start
 
-    average_time = average_time / (len(images)-1) * 1000
-    
+    average_time = average_time / (len(images) - 1) * 1000
+
     # Then
     assert average_time < 900
 
-    
-    
+
 def resize_image(image_path, target_size):
     pil_image = Image.open(image_path)
     image_array = np.array(pil_image)

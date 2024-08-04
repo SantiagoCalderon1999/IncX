@@ -2,16 +2,23 @@ import os
 import random
 import joblib
 import pickle
-from collections import defaultdict
 from dotenv import load_dotenv
-from tqdm import tqdm
 from filelock import FileLock
 from azure.storage.blob import BlobServiceClient
-from incrementalexplainer.metrics.comparison.explanations.dice_coefficient import compute_dice_coefficient
-from incrementalexplainer.metrics.comparison.explanations.jaccard_index import compute_jaccard_index
-from incrementalexplainer.metrics.comparison.saliency_maps.pearson_coefficient import compute_pearson_coefficient
-from incrementalexplainer.metrics.comparison.saliency_maps.structural_similarity_index import compute_structural_similarity_index
+from incrementalexplainer.metrics.comparison.explanations.dice_coefficient import (
+    compute_dice_coefficient,
+)
+from incrementalexplainer.metrics.comparison.explanations.jaccard_index import (
+    compute_jaccard_index,
+)
+from incrementalexplainer.metrics.comparison.saliency_maps.pearson_coefficient import (
+    compute_pearson_coefficient,
+)
+from incrementalexplainer.metrics.comparison.saliency_maps.structural_similarity_index import (
+    compute_structural_similarity_index,
+)
 from IPython.display import clear_output
+
 
 def main():
     # Load environment variables
@@ -20,11 +27,17 @@ def main():
     # Setup Azure blob clients for INCX and DRISE containers
     azure_storage_connection_string = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
     container_name_incx = os.environ.get("AZURE_STORAGE_INCREX_CONTAINER_NAME")
-    blob_service_client = BlobServiceClient.from_connection_string(azure_storage_connection_string)
-    container_client_incx = blob_service_client.get_container_client(container=container_name_incx)
+    blob_service_client = BlobServiceClient.from_connection_string(
+        azure_storage_connection_string
+    )
+    container_client_incx = blob_service_client.get_container_client(
+        container=container_name_incx
+    )
 
     container_name_drise = os.environ.get("AZURE_STORAGE_CONTAINER_NAME")
-    container_client_drise = blob_service_client.get_container_client(container=container_name_drise)
+    container_client_drise = blob_service_client.get_container_client(
+        container=container_name_drise
+    )
 
     # Load blob names
     blob_names_incx = joblib.load("blob_names.pkl")
@@ -64,8 +77,12 @@ def main():
         saliency_map_drise = dict_drise["maps"]["saliency_map"]
 
         # Compute metrics
-        pearson_coeff = compute_pearson_coefficient(saliency_map_incx, saliency_map_drise)
-        structural_similarity_index = compute_structural_similarity_index(saliency_map_incx, saliency_map_drise)
+        pearson_coeff = compute_pearson_coefficient(
+            saliency_map_incx, saliency_map_drise
+        )
+        structural_similarity_index = compute_structural_similarity_index(
+            saliency_map_incx, saliency_map_drise
+        )
 
         mask_incx = dict_incx["maps"]["mask"]
         mask_drise = dict_drise["maps"]["mask"]
@@ -81,16 +98,25 @@ def main():
 
         with lock_comparison:
             comparison_results = joblib.load("comparison_results.pkl")
-            comparison_results[model_name]['Pearson'][image_number][frame_number] = pearson_coeff
-            comparison_results[model_name]['Structural'][image_number][frame_number] = structural_similarity_index
-            comparison_results[model_name]['Dice'][image_number][frame_number] = dice_coefficient
-            comparison_results[model_name]['Jaccard'][image_number][frame_number] = jaccard_index
+            comparison_results[model_name]["Pearson"][image_number][frame_number] = (
+                pearson_coeff
+            )
+            comparison_results[model_name]["Structural"][image_number][frame_number] = (
+                structural_similarity_index
+            )
+            comparison_results[model_name]["Dice"][image_number][frame_number] = (
+                dice_coefficient
+            )
+            comparison_results[model_name]["Jaccard"][image_number][frame_number] = (
+                jaccard_index
+            )
             joblib.dump(comparison_results, "comparison_results.pkl")
 
         print(f"Finished blob {blob_name}")
         with lock_blobs_name_comparison:
             blob_names_incx = joblib.load("blob_names.pkl")
         random.shuffle(blob_names_incx)
+
 
 if __name__ == "__main__":
     main()
