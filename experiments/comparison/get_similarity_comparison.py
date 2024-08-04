@@ -11,7 +11,6 @@ from incrementalexplainer.metrics.comparison.explanations.dice_coefficient impor
 from incrementalexplainer.metrics.comparison.explanations.jaccard_index import compute_jaccard_index
 from incrementalexplainer.metrics.comparison.saliency_maps.pearson_coefficient import compute_pearson_coefficient
 from incrementalexplainer.metrics.comparison.saliency_maps.structural_similarity_index import compute_structural_similarity_index
-from incrementalexplainer.metrics.comparison.saliency_maps.scanpath_saliency import compute_scanpath_saliency
 from IPython.display import clear_output
 
 def main():
@@ -67,7 +66,6 @@ def main():
         # Compute metrics
         pearson_coeff = compute_pearson_coefficient(saliency_map_incx, saliency_map_drise)
         structural_similarity_index = compute_structural_similarity_index(saliency_map_incx, saliency_map_drise)
-        scanpath_saliency = compute_scanpath_saliency(saliency_map_incx, saliency_map_drise)
 
         mask_incx = dict_incx["maps"]["mask"]
         mask_drise = dict_drise["maps"]["mask"]
@@ -85,7 +83,6 @@ def main():
             comparison_results = joblib.load("comparison_results.pkl")
             comparison_results[model_name]['Pearson'][image_number][frame_number] = pearson_coeff
             comparison_results[model_name]['Structural'][image_number][frame_number] = structural_similarity_index
-            comparison_results[model_name]['Scanpath'][image_number][frame_number] = scanpath_saliency
             comparison_results[model_name]['Dice'][image_number][frame_number] = dice_coefficient
             comparison_results[model_name]['Jaccard'][image_number][frame_number] = jaccard_index
             joblib.dump(comparison_results, "comparison_results.pkl")
