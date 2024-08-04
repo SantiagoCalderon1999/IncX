@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     for dataset in DatasetEnum:
         partial_images_paths = []
-        dataset_path = os.path.join(".", "datasets", dataset.name)
+        dataset_path = os.path.join("../../", "datasets", dataset.name)
         for path in os.listdir(dataset_path):
             images = os.listdir(os.path.join(dataset_path, path))
             partial_images_paths += [
