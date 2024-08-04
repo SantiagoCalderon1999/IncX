@@ -23,7 +23,7 @@ class FasterRcnn(BaseModel):
         model.to(self.device)
         self._model = model
         
-        self._number_of_classes = 91
+        self._number_of_classes = 95
 
     def predict(self, x: torch.Tensor):
         """Creates a list of detection records from the image predictions.
