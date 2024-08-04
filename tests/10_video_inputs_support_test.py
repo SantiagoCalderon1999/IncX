@@ -1,4 +1,4 @@
-from incrementalexplainer.tracking.increx import IncRex
+from incrementalexplainer.tracking.incx import IncX
 from incrementalexplainer.models.model_enum import ModelEnum
 from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.d_rise import DRise
@@ -21,7 +21,7 @@ def test_consecutive_image_support():
     
     model = ModelFactory().get_model(ModelEnum.YOLO)
     explainer = DRise(model, 100)
-    incRex = IncRex(model, explainer)
+    incRex = IncX(model, explainer)
 
     # When
     result = incRex.explain_video('test_video.mp4')

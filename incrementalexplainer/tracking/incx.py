@@ -15,7 +15,7 @@ import cvzone
 from incrementalexplainer.models.labels import coco_labels
 
 
-class IncRex:
+class IncX:
     
     def __init__(self, model: BaseModel, explainer: BaseExplainer, object_indices: List[int] = None, saliency_map_divisions: int = 100) -> None:
         self._frame_number = 0

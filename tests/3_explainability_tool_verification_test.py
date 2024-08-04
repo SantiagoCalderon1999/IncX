@@ -1,5 +1,5 @@
 from incrementalexplainer.explainers.explainer_enum import ExplainerEnum
-from incrementalexplainer.tracking.increx  import IncRex
+from incrementalexplainer.tracking.incx  import IncX
 from incrementalexplainer.models.model_enum import ModelEnum
 from incrementalexplainer.models.model_factory import ModelFactory
 from incrementalexplainer.explainers.d_rise import DRise
@@ -21,7 +21,7 @@ def test_latency_measurement():
     for model_name in ModelEnum:
         model = ModelFactory().get_model(model_name)
         explainer = DRise(model, 100)
-        incRex = IncRex(model, explainer)
+        incRex = IncX(model, explainer)
         incRex.explain_frame(image)
         successful_counter += 1
 
