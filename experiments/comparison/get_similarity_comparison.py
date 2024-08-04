@@ -39,9 +39,6 @@ def main():
         container=container_name_drise
     )
 
-    # Load blob names
-    blob_names_incx = joblib.load("blob_names.pkl")
-    random.shuffle(blob_names_incx)
 
     # Setup file locks
     blob_name_file_lock = "blob_names_comparison.lock"
@@ -49,6 +46,11 @@ def main():
 
     comparison_file_lock = "comparison.lock"
     lock_comparison = FileLock(comparison_file_lock, timeout=100)
+    # Load blob names
+    with lock_blobs_name_comparison:
+        blob_names_incx = joblib.load("blob_names.pkl")
+        
+    random.shuffle(blob_names_incx)
     # Process each blob
     num_blobs = 0
     while blob_names_incx:

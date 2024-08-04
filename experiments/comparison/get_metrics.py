@@ -53,7 +53,6 @@ total_scanpath_saliency = defaultdict(float)
 total_dice_coefficient = defaultdict(float)
 total_jaccard_index = defaultdict(float)
 
-blob_names_incx = joblib.load("blob_names_metrics.pkl")
 
 blob_name_file_lock = "blob_names_metrics.lock"
 lock_blobs_name_comparison = FileLock(blob_name_file_lock, timeout=100)
@@ -66,6 +65,8 @@ lock_comparison = FileLock(comparison_file_lock, timeout=100)
 
 results = []
 
+with lock_blobs_name_comparison:
+    blob_names_incx = joblib.load("blob_names_metrics.pkl")
 
 def read_image(image_path):
     pil_image = Image.open(image_path)
