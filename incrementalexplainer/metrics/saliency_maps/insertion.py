@@ -23,7 +23,7 @@ def compute_insertion(model: od_common.GeneralObjectDetectionModelWrapper, salie
         transforms.ToTensor()
     ])
     initital_confidence = model.predict([transform(image)])[0].class_scores[object_index][class_index]
-    print(initital_confidence)
+    
     for threshold in tqdm(thresholds):
         masks[:, :, :] = False
         pixels = np.where(saliency_map >= threshold)
