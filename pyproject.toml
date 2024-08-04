@@ -6,7 +6,7 @@ authors = ["Santiago Calderón <santiagocalderon1999@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.10,<3.13"
 opencv-python = "4.9.0.80"
 ipykernel = "^6.29.5"
 matplotlib = "3.6.3"
@@ -14,7 +14,7 @@ numpy = "1.26.0"
 scikit-image = "^0.24.0"
 filterpy = "^1.4.5"
 pydantic = "^2.8.2"
-ultralytics = "^8.2.55"
+ultralytics = "8.2.55"
 captum = "^0.7.0"
 dill = "^0.3.8"
 ml-wrappers = "^0.5.5"
@@ -22,6 +22,9 @@ cvzone = "^1.6.1"
 torch = {version = "^2.3.1+cu118", source = "torchcu118"}
 torchvision = {version = "^0.18.1+cu118", source = "torchcu118"}
 seaborn = "^0.13.2"
+python-dotenv = "^1.0.1"
+azure-storage-blob = "^12.21.0"
+azure-identity = "^1.17.1"
 
 [[tool.poetry.source]]
 name = "torchcu118"
