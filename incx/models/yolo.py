@@ -8,11 +8,11 @@ from ultralytics import YOLO
 
 
 class Yolo(BaseModel):
-    """Wraps a PytorchFasterRCNN model with a predict API function for object detection.
+    """Wraps a YOLO model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have
     the same output and input class.
-    This wrapper is customized for the FasterRCNN model from Pytorch, and can
+    This wrapper is customized for the YOLO model from Pytorch, and can
     also be used with the RetinaNet or any other models with the same output class.
     """
 

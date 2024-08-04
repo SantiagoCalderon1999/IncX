@@ -8,11 +8,11 @@ from ultralytics import RTDETR
 
 
 class RtDetr(BaseModel):
-    """Wraps a SwinTransformer model with a predict API function for object detection.
+    """Wraps a RtDetr model with a predict API function for object detection.
 
     To be compatible with the drise explainability method, all models must be wrapped to have
     the same output and input class.
-    This wrapper is customized for the FasterRCNN model from Pytorch, and can
+    This wrapper is customized for the RtDetr model from Pytorch, and can
     also be used with the RetinaNet or any other models with the same output class.
     """
 
