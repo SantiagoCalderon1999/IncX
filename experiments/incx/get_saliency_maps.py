@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 import os
 import pickle
 import joblib
+import random
 
 def main():
     jobs_file_lock = "jobs.lock"
@@ -26,6 +27,8 @@ def main():
     jobs = joblib.load("jobs.pkl")
     while len(jobs) > 0:
         
+        jobs = joblib.load("jobs.pkl")
+        random.shuffle(jobs)
         with lock_data_file:
             job = jobs.pop(0)
             joblib.dump(jobs, "jobs.pkl")
@@ -35,23 +38,22 @@ def main():
             image_array = np.array(pil_image)
             return image_array
 
-        model_name = ModelEnum.YOLO
         load_dotenv()
         AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
         AZURE_CONTAINER_NAME = os.environ.get("AZURE_STORAGE_INCREX_CONTAINER_NAME")
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
-        print(AZURE_CONTAINER_NAME)
         explainer_name = job[1]
         model_name = job[0]
         k = job[2]
 
         valid = False
         initial_im = 1
+        print(model_name.name)
         model = ModelFactory().get_model(model_name)
         explainer = DRise(model, 1000)
         incRex = IncRex(model, explainer, object_indices=[0])
         while (not valid):
-            image_locations = [f'datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
+            image_locations = [f'../../datasets/LASOT/{k}/{str(i).zfill(8)}.jpg' for i in range(initial_im, 301)]
 
             images = [resize_image(image_location) for image_location in image_locations]
             transform = transforms.Compose([
@@ -99,7 +101,7 @@ def main():
             
             results_array_bytes = pickle.dumps(results_dict)
             blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=f"{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl")
-            blob_client.upload_blob(results_array_bytes)
+            blob_client.upload_blob(results_array_bytes, overwrite = True)
         jobs = joblib.load("jobs.pkl")
             
 if __name__ == "__main__":
