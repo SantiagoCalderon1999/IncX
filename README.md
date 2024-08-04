@@ -119,6 +119,7 @@ This command will execute all tests in the `tests/` directory, providing feedbac
 
 This is a detailed overview of the project's folder structure to help you navigate the code and resources effectively:
 
+```
 ├──incx/
 |    ├── dependencies/ # Modified original code from D-RISE and SORT to handle saliency maps in real-time.
 |    ├── data_models/ # Contains data models used in the project.
@@ -135,7 +136,7 @@ This is a detailed overview of the project's folder structure to help you naviga
 |
 └──tests/ # Unit tests for ensuring code quality.
      └── videos/ # Demo videos showcasing IncX output.  
-
+```
 
 ## Linting and Formatting
 
