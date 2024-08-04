@@ -64,7 +64,10 @@ def main():
         blob_bytes = blob_client.download_blob().readall()
         dict_incx = pickle.loads(blob_bytes)
         model_name = blob_name.split("/")[1]
-        index = dict_incx["detection"]["class_index"]
+        if "current_index" in dict_incx["detection"]:
+            index = dict_incx["detection"]["current_index"]
+        else:
+            index = dict_incx["detection"]["class_index"]
 
         # Download and load blob data for DRISE
         blob_client = container_client_drise.get_blob_client(blob_name)
