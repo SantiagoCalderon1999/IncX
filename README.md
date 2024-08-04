@@ -44,6 +44,19 @@ To set up and use this project, you will need `pyenv` for managing Python versio
 
 To reproduce the experiments comparing D-RISE and IncX, follow these steps using the scripts located in the `/experiments` directory.
 
+0. **Environment setup**
+   Create a `.env` with the following fields:
+   ```
+   AZURE_STORAGE_CONNECTION_STRING=..
+   AZURE_STORAGE_CONTAINER_NAME=..
+   AZURE_STORAGE_INCREX_CONTAINER_NAME=..
+   ```
+   Where the variables refer to:
+
+   - **AZURE_STORAGE_CONNECTION_STRING**: Your Azure Storage account connection string.
+   - **AZURE_STORAGE_CONTAINER_NAME**: The name of the container where D-RISE results will be stored.
+   - **AZURE_STORAGE_INCREX_CONTAINER_NAME**: The name of the container where IncX results will be saved.
+
 1. **Generate Saliency Maps with D-RISE**  
    Navigate to `/experiments/d_rise` and execute the `get_saliency_maps.py` script:
 
