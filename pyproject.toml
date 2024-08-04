@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "incx"
 version = "0.0.2"
-description = ""
+description = "Incremental real-time explainable AI for object detection in videos"
 authors = ["Santiago Calderón <santiagocalderon1999@gmail.com>"]
 readme = "README.md"
 
