@@ -90,6 +90,8 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
 
    On HPC systems, expedite this process with `batch_similarity_comparison.sh` and `multiple_batch_similarity.sh`.
 
+   The results that come out of this experiment are available in `data/comparison_results.pkl`.
+
 4. **Compute Metrics**  
    To calculate metrics such as insertion, deletion, EPG, and explanation size, start by running:
 
@@ -104,6 +106,11 @@ To reproduce the experiments comparing D-RISE and IncX, follow these steps using
    ```
 
    For HPC systems, speed up this process by using `batch_metrics.sh` and `multiple_batch_metrics.sh`.
+
+   The results that come out of this experiment are available in `data/metrics_results.pkl`.
+
+5. **Results analysis**
+   View the jupyter notebook `experiment-results.ipynb` to explore the results of the experiment and to view the graphs included in the paper.
 
 ## Running Unit Tests
 
