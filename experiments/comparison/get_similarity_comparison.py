@@ -39,7 +39,6 @@ def main():
         container=container_name_drise
     )
 
-
     # Setup file locks
     blob_name_file_lock = "blob_names_comparison.lock"
     lock_blobs_name_comparison = FileLock(blob_name_file_lock, timeout=100)
@@ -49,7 +48,7 @@ def main():
     # Load blob names
     with lock_blobs_name_comparison:
         blob_names_incx = joblib.load("blob_names.pkl")
-        
+
     random.shuffle(blob_names_incx)
     # Process each blob
     num_blobs = 0

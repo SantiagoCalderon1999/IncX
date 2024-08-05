@@ -1,13 +1,10 @@
+from tqdm import tqdm
 import pickle
 from incx.models.model_enum import ModelEnum
 from incx.metrics.saliency_maps.deletion import compute_deletion
 from incx.metrics.saliency_maps.insertion import compute_insertion
-from incx.metrics.saliency_maps.epg import (
-    compute_energy_based_pointing_game,
-)
-from incx.metrics.saliency_maps.exp_proportion import (
-    compute_explanation_proportion,
-)
+from incx.metrics.saliency_maps.epg import compute_energy_based_pointing_game
+from incx.metrics.saliency_maps.exp_proportion import compute_explanation_proportion
 from collections import defaultdict
 from IPython.display import clear_output
 import random
@@ -63,10 +60,13 @@ num_blobs = 0
 comparison_file_lock = "metrics_comparison.lock"
 lock_comparison = FileLock(comparison_file_lock, timeout=100)
 
-results = []
-
 with lock_blobs_name_comparison:
     blob_names_incx = joblib.load("blob_names_metrics.pkl")
+
+results = []
+
+import numpy as np
+
 
 def read_image(image_path):
     pil_image = Image.open(image_path)
@@ -84,16 +84,18 @@ while blob_names_incx:
     blob_bytes = blob_client.download_blob().readall()
     dict_incx = pickle.loads(blob_bytes)
     model_name = blob_name.split("/")[1]
-    index = dict_incx["detection"]["current_index"]
+    if "current_index" in dict_incx["detection"]:
+        current_index = dict_incx["detection"]["current_index"]
+    else:
+        current_index = dict_incx["detection"]["class_index"]
 
     # Download and load blob data for DRISE
     blob_client = container_client_drise.get_blob_client(blob_name)
     blob_bytes = blob_client.download_blob().readall()
     array_drise = pickle.loads(blob_bytes)
-    dict_drise = array_drise[index]
+    dict_drise = array_drise[current_index]
 
     model_name = blob_name.split("/")[1]
-    current_index = dict_incx["detection"]["current_index"]
     class_index = dict_drise["detection"]["class_index"]
 
     blob_client = container_client_drise.get_blob_client(blob_name)
@@ -218,6 +220,7 @@ while blob_names_incx:
     print(f"EPG DRiSE: {epg_drise}")
     print(f"EPG IncX: {epg_incx}")
     print(f"Exp Proportion DRiSE: {exp_proportion_drise}")
+    print(f"Exp Proportion IncX: {exp_proportion_incx}")
     with lock_blobs_name_comparison:
         blob_names_incx = joblib.load("blob_names_metrics.pkl")
     random.shuffle(blob_names_incx)
