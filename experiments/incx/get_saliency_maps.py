@@ -14,7 +14,6 @@ from incx.metrics.saliency_maps.exp_proportion import (
     compute_explanation_proportion,
 )
 from torchvision import transforms
-from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
 import os
 import pickle
@@ -40,13 +39,8 @@ def main():
             return image_array
 
         load_dotenv()
-        AZURE_STORAGE_CONNECTION_STRING = os.environ.get(
-            "AZURE_STORAGE_CONNECTION_STRING"
-        )
-        AZURE_CONTAINER_NAME = os.environ.get("AZURE_STORAGE_INCREX_CONTAINER_NAME")
-        blob_service_client = BlobServiceClient.from_connection_string(
-            AZURE_STORAGE_CONNECTION_STRING
-        )
+        
+        RESULTS_FOLDER_LOCATION = os.environ.get("RESULTS_FOLDER_LOCATION")
         explainer_name = job[1]
         model_name = job[0]
         k = job[2]
@@ -123,13 +117,18 @@ def main():
                 },
                 "maps": {"saliency_map": result.saliency_map, "mask": result.mask},
             }
+            file_name = f"{image_location.split('/')[-1].split('.')[0]}.pkl"
+            
+            file_path = f"{RESULTS_FOLDER_LOCATION}/{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/"
+            full_path = os.path.join(file_path, file_name)
 
-            results_array_bytes = pickle.dumps(results_dict)
-            blob_client = blob_service_client.get_blob_client(
-                container=AZURE_CONTAINER_NAME,
-                blob=f"{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/{image_location.split('/')[-1].split('.')[0]}.pkl",
-            )
-            blob_client.upload_blob(results_array_bytes, overwrite=True)
+            # Create the directory if it does not exist
+            os.makedirs(file_path, exist_ok=True)
+            
+            with open(full_path, "wb") as f:
+                pickle.dump(results_dict, f)
+                
+            print(f"Saved on {full_path}")
         jobs = joblib.load("jobs.pkl")
 
 
