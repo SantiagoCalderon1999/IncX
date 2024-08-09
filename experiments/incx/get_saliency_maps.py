@@ -40,7 +40,7 @@ def main():
 
         load_dotenv()
         
-        RESULTS_FOLDER_LOCATION = os.environ.get("RESULTS_FOLDER_LOCATION")
+        INCX_RESULTS_FOLDER_PATH = os.environ.get("INCX_RESULTS_FOLDER_PATH")
         explainer_name = job[1]
         model_name = job[0]
         k = job[2]
@@ -119,7 +119,7 @@ def main():
             }
             file_name = f"{image_location.split('/')[-1].split('.')[0]}.pkl"
             
-            file_path = f"{RESULTS_FOLDER_LOCATION}/{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/"
+            file_path = f"{INCX_RESULTS_FOLDER_PATH}/{explainer_name.name}/{model_name.name}/{image_location.split('/')[-3]}/{image_location.split('/')[-2]}/"
             full_path = os.path.join(file_path, file_name)
 
             # Create the directory if it does not exist
