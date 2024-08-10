@@ -90,7 +90,7 @@ def main():
         }
         file_name = f"{image_path.split('/')[-1].split('.')[0]}.pkl"
             
-        file_path = f"{D_RISE_RESULTS_FOLDER_PATH}/D-RISE/{model_name}/{image_path.split('/')[-3]}/{image_path.split('/')[-2]}/"
+        file_path = f"{D_RISE_RESULTS_FOLDER_PATH}/D_RISE/{model_name}/{image_path.split('/')[-3]}/{image_path.split('/')[-2]}/"
         full_path = os.path.join(file_path, file_name)
 
         os.makedirs(file_path, exist_ok=True)
