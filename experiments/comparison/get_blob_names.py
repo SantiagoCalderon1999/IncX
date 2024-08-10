@@ -5,27 +5,25 @@ from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
 from incx.models.model_enum import ModelEnum
 
+def find_files(directory="."):
+    file_list = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_list.append(file_path)
+    return file_list
 
 def main():
     load_dotenv()
-
-    azure_storage_connection_string = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
-    azure_container_name = os.environ.get("AZURE_STORAGE_INCREX_CONTAINER_NAME")
-
-    if not azure_storage_connection_string or not azure_container_name:
-        raise ValueError(
-            "Environment variables AZURE_STORAGE_CONNECTION_STRING or AZURE_STORAGE_CONTAINER_NAME are not set."
-        )
-
-    blob_service_client = BlobServiceClient.from_connection_string(
-        azure_storage_connection_string
-    )
-
-    container_client = blob_service_client.get_container_client(
-        container=azure_container_name
-    )
-
-    blob_names = [blob.name for blob in container_client.list_blobs()]
+    INCX_RESULTS_FOLDER_PATH = os.environ.get("INCX_RESULTS_FOLDER_PATH")
+    
+    blob_names = find_files(INCX_RESULTS_FOLDER_PATH)
+    
+    blob_names = [blob_name.replace("\\", "/") for blob_name in blob_names]
+    blob_names = [
+        '/'.join(name.split('/')[-5:]) 
+        for name in blob_names
+    ]
     random.shuffle(blob_names)
 
     joblib.dump(blob_names, "blob_names.pkl")

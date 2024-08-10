@@ -24,21 +24,8 @@ def main():
     # Load environment variables
     load_dotenv()
 
-    # Setup Azure blob clients for INCX and DRISE containers
-    azure_storage_connection_string = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
-    container_name_incx = os.environ.get("AZURE_STORAGE_INCREX_CONTAINER_NAME")
-    blob_service_client = BlobServiceClient.from_connection_string(
-        azure_storage_connection_string
-    )
-    container_client_incx = blob_service_client.get_container_client(
-        container=container_name_incx
-    )
-
-    container_name_drise = os.environ.get("AZURE_STORAGE_CONTAINER_NAME")
-    container_client_drise = blob_service_client.get_container_client(
-        container=container_name_drise
-    )
-
+    INCX_RESULTS_FOLDER_PATH = os.environ.get("INCX_RESULTS_FOLDER_PATH")
+    D_RISE_RESULTS_FOLDER_PATH = os.environ.get("D_RISE_RESULTS_FOLDER_PATH")
     # Setup file locks
     blob_name_file_lock = "blob_names_comparison.lock"
     lock_blobs_name_comparison = FileLock(blob_name_file_lock, timeout=100)
@@ -61,20 +48,11 @@ def main():
         clear_output(wait=True)
 
         # Download and load blob data for INCX
-        blob_client = container_client_incx.get_blob_client(blob_name)
-        blob_bytes = blob_client.download_blob().readall()
-        dict_incx = pickle.loads(blob_bytes)
+        dict_incx = joblib.load(INCX_RESULTS_FOLDER_PATH +'/'+blob_name)
         model_name = blob_name.split("/")[1]
-        if "current_index" in dict_incx["detection"]:
-            index = dict_incx["detection"]["current_index"]
-        else:
-            index = dict_incx["detection"]["class_index"]
 
         # Download and load blob data for DRISE
-        blob_client = container_client_drise.get_blob_client(blob_name)
-        blob_bytes = blob_client.download_blob().readall()
-        array_drise = pickle.loads(blob_bytes)
-        dict_drise = array_drise[index]
+        dict_drise = joblib.load(D_RISE_RESULTS_FOLDER_PATH +'/'+blob_name)
 
         # Extract maps for comparison
         saliency_map_incx = dict_incx["maps"]["saliency_map"]
