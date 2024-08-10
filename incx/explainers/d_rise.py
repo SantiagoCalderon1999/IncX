@@ -36,15 +36,17 @@ class DRise(BaseExplainer):
         results_drise = []
         transform = transforms.Compose([transforms.ToTensor()])
         results = self._model.predict(transform(image).unsqueeze(0))[0]
-
+        counter = 0
         while len(results.bounding_boxes) != number:
             results_drise = dr.get_drise_saliency_map(
                 image=image,
                 nummasks=self._num_mutants,
                 model=self._model,
                 maskres=(6, 6),
+                seed_start=counter*self._num_mutants,
             )
             number = len(results_drise)
+            counter += 1
 
         return [
             np.array(saliency_map["detection"])[0] for saliency_map in results_drise
