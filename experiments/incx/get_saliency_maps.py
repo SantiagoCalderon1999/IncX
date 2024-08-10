@@ -79,35 +79,9 @@ def main():
             result = results[0]
             if result.current_index == -1:
                 continue
-            insertion = compute_insertion(
-                model,
-                result.saliency_map,
-                image,
-                class_index,
-                result.bounding_box,
-                object_index=result.current_index,
-                divisions=100,
-            )
-            deletion = compute_deletion(
-                model,
-                result.saliency_map,
-                image,
-                class_index,
-                result.bounding_box,
-                object_index=result.current_index,
-                divisions=100,
-            )
-            epg = compute_energy_based_pointing_game(
-                result.saliency_map, result.bounding_box
-            )
-            exp_proportion = compute_explanation_proportion(result.mask)
 
             results_dict = {
                 "metrics": {
-                    "deletion": deletion,
-                    "insertion": insertion,
-                    "epg": epg,
-                    "exp_proportion": exp_proportion,
                     "explanation_time": explanation_time,
                 },
                 "detection": {
