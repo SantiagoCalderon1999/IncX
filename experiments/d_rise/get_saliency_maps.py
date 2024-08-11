@@ -30,14 +30,16 @@ def main():
     
     incx_results_list = find_files(INCX_RESULTS_FOLDER_PATH)
     incx_results_list = [
-        '\\'.join(name.split('\\')[-5:]) 
+        '/'.join(name.replace('\\', '/').split('/')[-5:]) 
         for name in incx_results_list
     ]
     d_rise_results_list = find_files(D_RISE_RESULTS_FOLDER_PATH)
     d_rise_results_list = [
-        '\\'.join(name.split('\\')[-5:])
+        '/'.join(name.replace('\\', '/').split('/')[-5:]) 
         for name in d_rise_results_list
     ]
+    
+
     print(f"INCX results: {incx_results_list}")    
     print(f"D_RISE results: {d_rise_results_list}")
     incx_not_d_rise = set(incx_results_list) - set(d_rise_results_list)
@@ -113,12 +115,12 @@ def main():
         
         incx_results_list = find_files(INCX_RESULTS_FOLDER_PATH)
         incx_results_list = [
-            '\\'.join(name.split('\\')[-5:]) 
+            '/'.join(name.replace('\\', '/').split('/')[-5:]) 
             for name in incx_results_list
         ]
         d_rise_results_list = find_files(D_RISE_RESULTS_FOLDER_PATH)
         d_rise_results_list = [
-            '\\'.join(name.split('\\')[-5:])
+            '/'.join(name.replace('\\', '/').split('/')[-5:]) 
             for name in d_rise_results_list
         ]
         print(f"INCX results: {incx_results_list}")    
