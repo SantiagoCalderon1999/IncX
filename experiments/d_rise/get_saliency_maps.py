@@ -29,11 +29,22 @@ def main():
     D_RISE_RESULTS_FOLDER_PATH = os.environ.get("D_RISE_RESULTS_FOLDER_PATH")
     
     incx_results_list = find_files(INCX_RESULTS_FOLDER_PATH)
+    incx_results_list = [
+        '\\'.join(name.split('\\')[-5:]) 
+        for name in incx_results_list
+    ]
     d_rise_results_list = find_files(D_RISE_RESULTS_FOLDER_PATH)
-    
+    d_rise_results_list = [
+        '\\'.join(name.split('\\')[-5:])
+        for name in d_rise_results_list
+    ]
+    print(f"INCX results: {incx_results_list}")    
+    print(f"D_RISE results: {d_rise_results_list}")
     incx_not_d_rise = set(incx_results_list) - set(d_rise_results_list)
     incx_not_d_rise = list(incx_not_d_rise)
-
+    
+    incx_not_d_rise = [INCX_RESULTS_FOLDER_PATH + '/' + el for el in incx_not_d_rise]
+    print(f"INCX not D_RISE: {incx_not_d_rise}")
     random.shuffle(incx_not_d_rise)
 
     while len(incx_not_d_rise) > 0:
@@ -101,10 +112,22 @@ def main():
         print(f"Saved on {full_path}")
         
         incx_results_list = find_files(INCX_RESULTS_FOLDER_PATH)
+        incx_results_list = [
+            '\\'.join(name.split('\\')[-5:]) 
+            for name in incx_results_list
+        ]
         d_rise_results_list = find_files(D_RISE_RESULTS_FOLDER_PATH)
-        
+        d_rise_results_list = [
+            '\\'.join(name.split('\\')[-5:])
+            for name in d_rise_results_list
+        ]
+        print(f"INCX results: {incx_results_list}")    
+        print(f"D_RISE results: {d_rise_results_list}")
         incx_not_d_rise = set(incx_results_list) - set(d_rise_results_list)
         incx_not_d_rise = list(incx_not_d_rise)
+        
+        incx_not_d_rise = [INCX_RESULTS_FOLDER_PATH + '/' + el for el in incx_not_d_rise]
+        print(f"INCX not D_RISE: {incx_not_d_rise}")
         random.shuffle(incx_not_d_rise)
 
 if __name__ == "__main__":
