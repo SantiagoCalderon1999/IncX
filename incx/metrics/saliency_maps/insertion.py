@@ -32,9 +32,6 @@ def compute_insertion(
     thresholds = thresholds[::-1]
     im_size = saliency_map.shape[0] * saliency_map.shape[1] * 3
     transform = transforms.Compose([transforms.ToTensor()])
-    initital_confidence = model.predict([transform(image)])[0].class_scores[
-        object_index
-    ][class_index]
 
     for threshold in tqdm(thresholds):
         masks[:, :, :] = False
@@ -66,7 +63,9 @@ def compute_insertion(
         else:
             max_confidence = 0
 
-        conf_insertion_list.append(float(max_confidence / initital_confidence))
+        conf_insertion_list.append(float(max_confidence))
+        
+    conf_insertion_list = np.array(conf_insertion_list) / conf_insertion_list[-1]
     auc = trapz(conf_insertion_list, divisions_list_in)
     if verbose:
         sns.set_theme(style="whitegrid")
