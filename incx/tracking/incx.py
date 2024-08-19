@@ -24,6 +24,7 @@ class IncX:
         explainer: BaseExplainer,
         object_indices: List[int] = None,
         saliency_map_divisions: int = 100,
+        timeout: int = 300,
     ) -> None:
         self._frame_number = 0
         self._model = model
@@ -33,6 +34,8 @@ class IncX:
         self._exp_thresholds = defaultdict(int)
         self._obj_classes_ix = defaultdict(int)
         self._saliency_map_divisions = saliency_map_divisions
+        self._timeout = timeout
+        self._timeout_counter = 0
 
     def explain_frame(self, image) -> tuple[Dict[int, IncRexOutput], np.ndarray]:
         transform = transforms.Compose([transforms.ToTensor()])
@@ -111,6 +114,7 @@ class IncX:
             tracking_results = self._explanation_tracker.compute_tracked_explanation(
                 image, prediction
             )
+            is_object_detected = False
             for object_index, (
                 saliency_map,
                 bounding_box,
@@ -131,6 +135,7 @@ class IncX:
                         )
                     )
                     self._exp_thresholds[object_index] = exp_threshold
+                    is_object_detected = True
                 else:
                     sufficient_explanation = np.zeros_like(image)
                     mask = np.zeros_like(saliency_map)
@@ -143,6 +148,11 @@ class IncX:
                     mask=mask,
                     current_index=current_index,
                 )
+            if not is_object_detected:
+                self._timeout_counter += 1
+                if self._timeout_counter > self._timeout:
+                    self._frame_number = -1
+                    self._timeout_counter = 0
 
         self._frame_number += 1
 
