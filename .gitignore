@@ -2,7 +2,6 @@
 *.hdf5
 *.tif
 *.png
-*.jpg
 *.txt
 */README.md
 .vscode
